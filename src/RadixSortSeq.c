@@ -79,26 +79,20 @@ void radix_sort(int *array, int n) {
         countingSortAlgo1(array, max, min, n, digit);
     }
 }
+void getMaxandMin(int *arr, int n, int *min, int *max) {
+    *min = arr[0];
 
-/**
- * @brief This function allows to find the maximum in an array.
- * @param arr      array.
- * @param n        array size.
- */
-int getMax(int *arr, int n) {
-    int max = arr[0];
-    for (int i = 1; i < n; i++)
-        if (arr[i] > max)
-            max = arr[i];
-    return max;
-}
+    *max = arr[0];
 
-int getMin(int *arr, int n) {
-    int min = arr[0];
-    for (int i = 1; i < n; i++)
-        if (arr[i] < min)
-            min = arr[i];
-    return min;
+    for (int i = 1; i < n; i++) {
+        if (arr[i] > *max)
+
+            *max = arr[i];
+
+        if (arr[i] < *min)
+
+            *min = arr[i];
+    }
 }
 
 void countingSortAlgo1(int *vet, int max, int min, int n, int dig) {

@@ -177,7 +177,7 @@ void serviceRadixsort(int array[], int size, int max, int rank, int num_process,
 
  */
 
-int getMaxandMin(int *arr, int n, int *min, int *max) {
+void getMaxandMin(int *arr, int n, int *min, int *max) {
     *min = arr[0];
 
     *max = arr[0];
