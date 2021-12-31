@@ -44,7 +44,7 @@
 int init_structures(int **array, int length, int mode, int rank, int num_process, char *FILE_A);
 void write_on_File(int size, int max_digit, char *FILE_A);
 int getMaxandMin(int *arr, int n, int *min, int *max);
-void countingSortAlgo1(int *local_count, int *rec_buf, int digit, int dim, int min);
+void countingSortAlgo1(int *array, int *rec_buf, int n, int digit, int num_process, int rank, int dim, int min);
 void radix_sort(int *array, int n, int num_process, int rank);
 void countingSortAlgo0(int array[], int base, int size, int raw_index, int *matrix);
 void myRadixsort(int *array, int length, int num_process, int rank);

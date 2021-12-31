@@ -285,8 +285,10 @@ void radix_sort(int *array, int n, int num_process, int rank) {
         free(displs);
     }
     // ogi processo calcolerà il massimo tra i suoi elementi
-    int local_max = getMax(rec_buf, dim);
-    int local_min = getMin(rec_buf, dim);
+    int local_max;
+    int local_min;
+
+    getMaxandMin(array, n, &local_min, &local_max);
 
     int global_max, global_min;
     // ora bisogna calcolare un massimo globale tra tutti i processi
