@@ -172,20 +172,15 @@ void serviceRadixsort(int array[], int size, int max, int rank, int num_process,
  * @param arr      array.
  * @param n        array size.
  */
-int getMax(int *arr, int n) {
-    int max = arr[0];
-    for (int i = 1; i < n; i++)
-        if (arr[i] > max)
-            max = arr[i];
-    return max;
-}
-
-int getMin(int *arr, int n) {
-    int min = arr[0];
-    for (int i = 1; i < n; i++)
-        if (arr[i] < min)
-            min = arr[i];
-    return min;
+int getMaxandMin(int *arr, int n, int *min, int *max) {
+    *min = arr[0];
+    *max = arr[0];
+    for (int i = 1; i < n; i++) {
+        if (arr[i] > *max)
+            *max = arr[i];
+        if (arr[i] < *min)
+            *min = arr[i];
+    }
 }
 
 void countingSortAlgo0(int array[], int base, int size, int raw_index, int *matrix) {
@@ -226,32 +221,13 @@ void countingSortAlgo0(int array[], int base, int size, int raw_index, int *matr
  * @param rank           rank of the current process.
  * @param dim            dimension of the rec_buf.
  */
-void countingSortAlgo1(int *array, int *rec_buf, int n, int digit, int num_process, int rank, int dim, int min) {
+void countingSortAlgo1(int *local_count, int *rec_buf, int digit, int dim, int min) {
     // Compute local count for each processes
-    int i, position, local_count[10] = {0};
+    int i, position;
     for (i = 0; i < dim; i++) {
         local_count[((rec_buf[i] - min) / digit) % 10]++;
     }
     // Reduce all the sub counts to root process
-    if (rank == 0) {
-        int count[10] = {0};
-        int loc;
-        MPI_Reduce(local_count, count, 10, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
-
-        for (i = 1; i < 10; i++) {
-            count[i] += count[i - 1];
-        }
-
-        int *temp_array = (int *)malloc(sizeof(int) * n);
-        for (i = n - 1; i >= 0; i--) {
-            temp_array[count[((array[i] - min) / digit) % 10] - 1] = array[i];
-            count[((array[i] - min) / digit) % 10]--;
-        }
-        memcpy(array, temp_array, sizeof(int) * n);
-        free(temp_array);
-    } else {
-        MPI_Reduce(local_count, 0, 10, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
-    }
 }
 
 /**
@@ -290,17 +266,56 @@ void radix_sort(int *array, int n, int num_process, int rank) {
         free(displs);
     }
     // ogi processo calcolerà il massimo tra i suoi elementi
-    int local_max = getMax(rec_buf, dim);
-    int local_min = getMin(rec_buf, dim);
+    int local_max, local_min;
+    getMaxandMin(rec_buf, dim, &local_min, &local_max);
 
     int global_max, global_min;
     // ora bisogna calcolare un massimo globale tra tutti i processi
     MPI_Allreduce(&local_max, &global_max, 1, MPI_INT, MPI_MAX, MPI_COMM_WORLD);
     MPI_Allreduce(&local_min, &global_min, 1, MPI_INT, MPI_MIN, MPI_COMM_WORLD);
     // ciascun processo chiama la counting sort per quante sono le cifre decimali del max elemento globale
+    int max_pos = 0;
+    int tmp_pos = global_max - global_min;
+    while (tmp_pos > 0) {
+        tmp_pos /= 10;
+        max_pos++;
+    }
 
+    int *frequencies;
+    if (rank == 0) {
+        frequencies = (int *)calloc(10 * max_pos, sizeof(int));
+    }
+    int *local_count = (int *)calloc(10 * max_pos, sizeof(int));
+    int decimal_digit = 0;
     for (int digit = 1; (global_max - global_min) / digit > 0; digit *= 10) {
-        countingSortAlgo1(array, rec_buf, n, digit, num_process, rank, dim, global_min);
+        countingSortAlgo1(local_count + 10 * decimal_digit, rec_buf, digit, dim, global_min);
+        decimal_digit++;
+    }
+
+    if (rank == 0) {
+        MPI_Reduce(local_count, frequencies, 10 * max_pos, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
+
+        for (int i = 1; i < 10 * max_pos; i++) {
+            if (i % 10 != 0)
+                frequencies[i] += frequencies[i - 1];
+        }
+
+    } else {
+        MPI_Reduce(local_count, 0, 10 * max_pos, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
+    }
+
+    if (rank == 0) {
+        int *temp_array = (int *)malloc(sizeof(int) * n);
+        int val = 1;
+        for (int j = 0; j < max_pos; j++) {
+            for (int i = n - 1; i >= 0; i--) {
+                temp_array[frequencies[j * 10 + ((array[i] - global_min) / val) % 10] - 1] = array[i];
+                frequencies[j * 10 + ((array[i] - global_min) / val) % 10]--;
+            }
+            val *= 10;
+            memcpy(array, temp_array, sizeof(int) * n);
+        }
+        free(temp_array);
     }
     free(rec_buf);
 }
