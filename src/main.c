@@ -91,11 +91,11 @@ int main(int argc, char **argv) {
     double read_time = read_end_time - read_start_time;
     double algo_time = algo_end_time - algo_start_time;
 
-    MPI_Barrier(MPI_COMM_WORLD);
     double global_read_time, global_algo_time;
     MPI_Reduce(&read_time, &global_read_time, 1, MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
     MPI_Reduce(&algo_time, &global_algo_time, 1, MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
 
+    if (rank == 0) free(array);
     if (rank == 0) printf("%d;%d;%d;%d;%.5f;%.5f\n", algorithm, init_mode, length, num_process, global_read_time, global_algo_time);
 
     MPI_Finalize();

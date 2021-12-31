@@ -70,10 +70,8 @@ int init_structures(int **array, int length, int mode, int rank, int num_process
         MPI_File_set_view(fh_a, displacement, MPI_INT, dt_row_a, "native", MPI_INFO_NULL);
         if (MPI_File_read(fh_a, tmp_array, 1, dt_row_a, MPI_STATUS_IGNORE) != MPI_SUCCESS)
             perror("error during lecture from file with MPI");
-        MPI_Barrier(MPI_COMM_WORLD);
-        MPI_Gather(tmp_array, dim, MPI_INT, *array, dim, MPI_INT, 0, MPI_COMM_WORLD);
 
-        MPI_Barrier(MPI_COMM_WORLD);
+        MPI_Gather(tmp_array, dim, MPI_INT, *array, dim, MPI_INT, 0, MPI_COMM_WORLD);
     }
 
     return 1;
@@ -143,8 +141,6 @@ void serviceRadixsort(int array[], int size, int max, int rank, int num_process,
         }
     }
 
-    MPI_Barrier(comm);
-
     int place = 1;
     if (rank == 0) {
         int *output = (int *)calloc(size, sizeof(int));
@@ -161,34 +157,22 @@ void serviceRadixsort(int array[], int size, int max, int rank, int num_process,
             place = place * 10;
         }
     }
-    MPI_Barrier(comm);
-    MPI_Bcast(array, size, MPI_INT, 0, comm);
 
-    MPI_Barrier(comm);
+    MPI_Bcast(array, size, MPI_INT, 0, comm);
 }
 
 /**
-
  * @brief This function allows to find the maximum in an array.
-
  * @param arr      array.
-
  * @param n        array size.
-
  */
-
 void getMaxandMin(int *arr, int n, int *min, int *max) {
     *min = arr[0];
-
     *max = arr[0];
-
     for (int i = 1; i < n; i++) {
         if (arr[i] > *max)
-
             *max = arr[i];
-
         if (arr[i] < *min)
-
             *min = arr[i];
     }
 }
@@ -249,6 +233,7 @@ void countingSortAlgo1(int *array, int *rec_buf, int n, int digit, int num_proce
         MPI_Reduce(local_count, 0, 10, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
     }
 }
+
 /**
  * @brief The function that separates the array in subarray and starts the sorting process.
  * @param array          array.
@@ -285,10 +270,8 @@ void radix_sort(int *array, int n, int num_process, int rank) {
         free(displs);
     }
     // ogi processo calcolerà il massimo tra i suoi elementi
-    int local_max;
-    int local_min;
-
-    getMaxandMin(array, n, &local_min, &local_max);
+    int local_max, local_min;
+    getMaxandMin(rec_buf, dim, &local_min, &local_max);
 
     int global_max, global_min;
     // ora bisogna calcolare un massimo globale tra tutti i processi
@@ -330,6 +313,7 @@ void radix_sort(int *array, int n, int num_process, int rank) {
     }
     free(rec_buf);
 }
+
 void myRadixsort(int *array, int length, int num_process, int rank) {
     int *array_pos = (int *)malloc(length * sizeof(int));
     if (array_pos == NULL)
@@ -347,7 +331,6 @@ void myRadixsort(int *array, int length, int num_process, int rank) {
     MPI_Comm_size(pari, &num_process);
     if (old_rank == 0)
         getMaxDigitSeq(array, length, array_pos, array_neg, &max_pos, &max_neg, &size_pos, &size_neg);
-    MPI_Barrier(MPI_COMM_WORLD);
 
     if (old_num_process > 1) {
         MPI_Bcast(&max_neg, 1, MPI_INT, 0, MPI_COMM_WORLD);
@@ -356,8 +339,6 @@ void myRadixsort(int *array, int length, int num_process, int rank) {
         MPI_Bcast(&size_pos, 1, MPI_INT, 0, MPI_COMM_WORLD);
         MPI_Bcast(array_neg, size_neg, MPI_INT, 0, MPI_COMM_WORLD);
         MPI_Bcast(array_pos, size_pos, MPI_INT, 0, MPI_COMM_WORLD);
-
-        MPI_Barrier(MPI_COMM_WORLD);
     }
 
     if (old_num_process <= 1) {
@@ -373,7 +354,6 @@ void myRadixsort(int *array, int length, int num_process, int rank) {
         if ((old_rank % 2) == 0) {
             // rank 0 master negativi sicur
             serviceRadixsort(array_neg, size_neg, max_neg, rank, num_process, pari);
-            MPI_Barrier(pari);
             if (old_rank == 0) {
                 memcpy(array, array_neg, size_neg * sizeof(int));
                 MPI_Recv(array_pos, size_pos, MPI_INT, 1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);

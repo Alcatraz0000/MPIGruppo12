@@ -43,6 +43,7 @@
 
 int init_structures(int **array, int length, int mode, int rank, int num_process, char *FILE_A);
 void write_on_File(int size, int max_digit, char *FILE_A);
+void getMaxDigit(int array[], int size, int *array_res, int *max, int *count, int flag);
 void getMaxandMin(int *arr, int n, int *min, int *max);
 void countingSortAlgo1(int *array, int *rec_buf, int n, int digit, int num_process, int rank, int dim, int min, int *count);
 void radix_sort(int *array, int n, int num_process, int rank);
