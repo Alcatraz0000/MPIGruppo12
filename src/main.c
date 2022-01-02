@@ -48,7 +48,7 @@ int main(int argc, char **argv) {
     int length, algorithm, max_digit, init_mode;
 
     if (argc < 5) {
-        printf("ERROR! Usage: ./main rows columns threads");
+        printf("ERROR! Usage: ./main length init_mode algorithm max_digit");
         exit(1);
     }
 
