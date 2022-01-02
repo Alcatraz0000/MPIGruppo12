@@ -1,5 +1,6 @@
 build/
-measurements/analysis.bash
-measurements/analysis.bash
 measurements/measures/
 measurements/analysis.bash
+measurements/.DS_Store
+save.c
+.vscode/settings.json
