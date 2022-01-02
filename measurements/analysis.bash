@@ -36,27 +36,27 @@ TIMEFORMAT='%3U;%3E;%3S;%P'
 #definitions of some variables used in this script:
 
 #number of measurements to be made for each combination 
-NUM_MEASURES=100
+NUM_MEASURES=20
 
 #dimension of item in program vector
-VECT_DIMENSIONS=(5000000 20000000)
+VECT_DIMENSIONS=(100)
 
 #number of threads used in our analysis to evaluate the performance variations
 #with the different types of parallelized and non-parallelized algorithms.
 #N.B. 0 is used for considerate serial execution 
-NUM_PROCESS=(0 1 2 4 8 16)
+NUM_PROCESS=(0 2 4)
 
 #different options for compiler optimizations in back-end
-COMP_OPT=(1 2 3)
+COMP_OPT=(2)
 
 #reference to programs 0 for radix sort based on counting sort, 1 for radix based on brutal algorithms
 ALGORITHMS=(0 1)
 
 # QUA DEVESCRIVERE CAMILLAAAAAreference to programs 0 for radix sort based on counting sort, 1 for radix based on brutal algorithms
-INIT_MODE=(0 1)
+INIT_MODE=(1)
 
 #MAX_DIGIT saved all length of max digit that we want to try in measurements in loops operations
-MAX_DIGIT=(9999 99999999)
+MAX_DIGIT=(99999999)
 
 #the path in which this script is placed
 START_PATH=$(  cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P)
@@ -76,7 +76,8 @@ execute(){
             (time $6/$program $1 $8 $9) 2>&1 | sed -e ':a' -e 'N' -e '$!ba' -e 's/\n/;/g' -e 's/,/./g' -e 's/;/,/g' >> $5
         else
             program=$7_O$2
-            (time mpirun -np $4 $6/$program $1 $3 $8 $9) 2>&1 | sed -e ':a' -e 'N' -e '$!ba' -e 's/\n/;/g' -e 's/,/./g' -e 's/;/,/g' >> $5
+            (export TMPDIR=/tmp
+                time mpirun  -np $4 $6/$program $1 $3 $8 $9) 2>&1 | sed -e ':a' -e 'N' -e '$!ba' -e 's/\n/;/g' -e 's/,/./g' -e 's/;/,/g' >> $5
         fi
         
 
