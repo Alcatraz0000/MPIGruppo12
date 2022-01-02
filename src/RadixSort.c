@@ -368,12 +368,10 @@ void myRadixsort(int *array, int length, int num_process, int rank) {
         getMaxDigitSeq(array, length, array_pos, array_neg, &max_pos, &max_neg, &size_pos, &size_neg);
 
     if (old_num_process > 1) {
-        MPI_Bcast(&max_neg, 1, MPI_INT, 0, MPI_COMM_WORLD);
-        MPI_Bcast(&max_pos, 1, MPI_INT, 0, MPI_COMM_WORLD);
-        MPI_Bcast(&size_neg, 1, MPI_INT, 0, MPI_COMM_WORLD);
         MPI_Bcast(&size_pos, 1, MPI_INT, 0, MPI_COMM_WORLD);
-        MPI_Bcast(array_neg, size_neg, MPI_INT, 0, pari);
-        MPI_Bcast(array_pos, size_pos, MPI_INT, 0, pari);
+        MPI_Bcast(&size_neg, 1, MPI_INT, 0, MPI_COMM_WORLD);
+        MPI_Bcast(array_neg, size_neg, MPI_INT, 0, MPI_COMM_WORLD);
+        MPI_Bcast(array_pos, size_pos, MPI_INT, 0, MPI_COMM_WORLD);
     }
 
     if (old_num_process <= 1) {
@@ -388,14 +386,16 @@ void myRadixsort(int *array, int length, int num_process, int rank) {
 
         if ((old_rank % 2) == 0) {
             // rank 0 master negativi sicur
+            MPI_Bcast(&max_neg, 1, MPI_INT, 0, pari);
+
             serviceRadixsort(array_neg, size_neg, max_neg, rank, num_process, pari);
             if (old_rank == 0) {
                 memcpy(array, array_neg, size_neg * sizeof(int));
-                MPI_Recv(array_pos, size_pos, MPI_INT, 1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-                memcpy(array + size_neg, array_pos, size_pos * sizeof(int));
-            }
+                MPI_Recv(array + size_neg, size_pos, MPI_INT, 1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+                        }
         } else {
             // rank 1 master poisitivi sicuro
+            MPI_Bcast(&max_pos, 1, MPI_INT, 0, pari);
             serviceRadixsort(array_pos, size_pos, max_pos, rank, num_process, pari);
             if (old_rank == 1) {
                 MPI_Send(array_pos, size_pos, MPI_INT, 0, 0, MPI_COMM_WORLD);
