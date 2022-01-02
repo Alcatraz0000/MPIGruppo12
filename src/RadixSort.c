@@ -328,7 +328,7 @@ void radix_sort(int *array, int n, int num_process, int rank) {
     }
 
     int decimal_digit = 0;
-    for (int digit = 1; (global_max - global_min) / digit > 0; digit *= 10) {
+    for (int digit = 1; (local_max - global_min) / digit > 0; digit *= 10) {
         countingSortAlgo1(rec_buf, digit, rank, dim, global_min, frequencies[decimal_digit]);
         decimal_digit++;
     }
