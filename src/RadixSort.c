@@ -392,7 +392,7 @@ void myRadixsort(int *array, int length, int num_process, int rank) {
             if (old_rank == 0) {
                 memcpy(array, array_neg, size_neg * sizeof(int));
                 MPI_Recv(array + size_neg, size_pos, MPI_INT, 1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-                        }
+            }
         } else {
             // rank 1 master poisitivi sicuro
             MPI_Bcast(&max_pos, 1, MPI_INT, 0, pari);
