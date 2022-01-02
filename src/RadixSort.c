@@ -210,9 +210,9 @@ void countingSortAlgo0(int array[], int base, int size, int raw_index, int *matr
  * @param rank           rank of the current process.
  * @param dim            dimension of the rec_buf.
  */
-void countingSortAlgo1(int *local_count, int *rec_buf, int digit, int dim, int min) {
+void countingSortAlgo1(int* rec_buf,  int digit, int rank, int dim, int min, int* count) {
     // Compute local count for each processes
-    int i, position;
+    int i, position, local_count[10] = {0};
     for (i = 0; i < dim; i++) {
         local_count[((rec_buf[i] - min) / digit) % 10]++;
     }
@@ -236,7 +236,7 @@ void countingSortAlgo1(int *local_count, int *rec_buf, int digit, int dim, int m
  * @param num_process    number of processes.
  * @param rank           rank of the current process.
  */
-void radix_sort(int *array, int n, int num_process, int rank) {
+void radix_sort(int* array, int n, int num_process, int rank) {
     int rem = n % num_process;  // elements remaining after division among processes
     int dim, displacement;
 
@@ -290,7 +290,7 @@ void radix_sort(int *array, int n, int num_process, int rank) {
 
     int decimal_digit = 0;
     for (int digit = 1; (global_max - global_min) / digit > 0; digit *= 10) {
-        countingSortAlgo1(array, rec_buf, n, digit, num_process, rank, dim, global_min, frequencies[decimal_digit]);
+        countingSortAlgo1(rec_buf, digit, rank, dim, global_min, frequencies[decimal_digit]);
         decimal_digit++;
     }
 
