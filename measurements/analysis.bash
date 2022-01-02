@@ -36,10 +36,10 @@ TIMEFORMAT='%3U;%3E;%3S;%P'
 #definitions of some variables used in this script:
 
 #number of measurements to be made for each combination 
-NUM_MEASURES=20
+NUM_MEASURES=15
 
 #dimension of item in program vector
-VECT_DIMENSIONS=(100)
+VECT_DIMENSIONS=(6000000)
 
 #number of threads used in our analysis to evaluate the performance variations
 #with the different types of parallelized and non-parallelized algorithms.
@@ -50,13 +50,13 @@ NUM_PROCESS=(0 2 4)
 COMP_OPT=(2)
 
 #reference to programs 0 for radix sort based on counting sort, 1 for radix based on brutal algorithms
-ALGORITHMS=(0 1)
+ALGORITHMS=(1)
 
 # QUA DEVESCRIVERE CAMILLAAAAAreference to programs 0 for radix sort based on counting sort, 1 for radix based on brutal algorithms
 INIT_MODE=(1)
 
 #MAX_DIGIT saved all length of max digit that we want to try in measurements in loops operations
-MAX_DIGIT=(99999999)
+MAX_DIGIT=(9999)
 
 #the path in which this script is placed
 START_PATH=$(  cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P)
