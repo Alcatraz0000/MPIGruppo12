@@ -70,10 +70,7 @@ int init_structures(int **array, int length, int mode, int rank, int num_process
         MPI_File_set_view(fh_a, displacement, MPI_INT, dt_row_a, "native", MPI_INFO_NULL);
         if (MPI_File_read(fh_a, tmp_array, 1, dt_row_a, MPI_STATUS_IGNORE) != MPI_SUCCESS)
             perror("error during lecture from file with MPI");
-        MPI_Barrier(MPI_COMM_WORLD);
         MPI_Gather(tmp_array, dim, MPI_INT, *array, dim, MPI_INT, 0, MPI_COMM_WORLD);
-
-        MPI_Barrier(MPI_COMM_WORLD);
     }
 
     return 1;
@@ -121,29 +118,33 @@ void serviceRadixsort(int array[], int size, int max, int rank, int num_process,
     int i = 0, j = 0;
     MPI_Request request;
     int dest = rank % 2;
-    // Apply counting sort to sort elements based on place value.
-    for (int i = rank; i < max; i += num_process) {
-        for (int k = 0; k < base + 1; k++)
-            vect_local[k] = 0;
-        countingSortAlgo0(array, base, size, i, vect_local);
-
-        if (rank == 0) {
+    if (num_process == 1){
+        for (int i = rank; i < max; i += num_process) {
+            memset(vect_local, 0, base*sizeof(int));
+            countingSortAlgo0(array, base, size, i, vect_local);
             for (int k = 0; k < base + 1; k++) {
                 vect[i * (base + 1) + k] = vect_local[k];
-                vect_local[k] = 0;
             }
-            for (j = i + 1; j < max && j < i + num_process; j++) {
-                MPI_Recv(vect_local, base + 1, MPI_INT, j % num_process, 0, comm, MPI_STATUS_IGNORE);
+        }
+    }else{
+        // Apply counting sort to sort elements based on place value.
+        for (int i = rank; i < max; i += num_process) {
+            memset(vect_local, 0, base*sizeof(int));
+            countingSortAlgo0(array, base, size, i, vect_local);
+            if(rank != 0) {
+                MPI_Send(vect_local, base + 1, MPI_INT, 0, 0, comm);
+            }
+            else{
                 for (int k = 0; k < base + 1; k++) {
-                    vect[j * (base + 1) + k] = vect_local[k];
+                    vect[i * (base + 1) + k] = vect_local[k];
+                    vect_local[k] = 0;
                 }
-            }
-        } else {
-            MPI_Ssend(vect_local, base + 1, MPI_INT, 0, 0, comm);
+                for (j = i + 1; j < max && j < i + num_process; j++) {
+                    MPI_Recv(vect + (j) * (base + 1), base + 1, MPI_INT, j % num_process, 0, comm, MPI_STATUS_IGNORE);
+                }
+            } 
         }
     }
-
-    MPI_Barrier(comm);
 
     int place = 1;
     if (rank == 0) {
@@ -161,10 +162,6 @@ void serviceRadixsort(int array[], int size, int max, int rank, int num_process,
             place = place * 10;
         }
     }
-    MPI_Barrier(comm);
-    MPI_Bcast(array, size, MPI_INT, 0, comm);
-
-    MPI_Barrier(comm);
 }
 
 /**
@@ -337,17 +334,14 @@ void myRadixsort(int *array, int length, int num_process, int rank) {
     MPI_Comm_size(pari, &num_process);
     if (old_rank == 0)
         getMaxDigitSeq(array, length, array_pos, array_neg, &max_pos, &max_neg, &size_pos, &size_neg);
-    MPI_Barrier(MPI_COMM_WORLD);
 
     if (old_num_process > 1) {
         MPI_Bcast(&max_neg, 1, MPI_INT, 0, MPI_COMM_WORLD);
         MPI_Bcast(&max_pos, 1, MPI_INT, 0, MPI_COMM_WORLD);
         MPI_Bcast(&size_neg, 1, MPI_INT, 0, MPI_COMM_WORLD);
         MPI_Bcast(&size_pos, 1, MPI_INT, 0, MPI_COMM_WORLD);
-        MPI_Bcast(array_neg, size_neg, MPI_INT, 0, MPI_COMM_WORLD);
-        MPI_Bcast(array_pos, size_pos, MPI_INT, 0, MPI_COMM_WORLD);
-
-        MPI_Barrier(MPI_COMM_WORLD);
+        MPI_Bcast(array_neg, size_neg, MPI_INT, 0, pari);
+        MPI_Bcast(array_pos, size_pos, MPI_INT, 0, pari);
     }
 
     if (old_num_process <= 1) {
@@ -363,7 +357,6 @@ void myRadixsort(int *array, int length, int num_process, int rank) {
         if ((old_rank % 2) == 0) {
             // rank 0 master negativi sicur
             serviceRadixsort(array_neg, size_neg, max_neg, rank, num_process, pari);
-            MPI_Barrier(pari);
             if (old_rank == 0) {
                 memcpy(array, array_neg, size_neg * sizeof(int));
                 MPI_Recv(array_pos, size_pos, MPI_INT, 1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);

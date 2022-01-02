@@ -55,31 +55,10 @@ int main(int argc, char **argv) {
     STARTTIME(1);
     init_structures(&array, length, "VectGruppo12");  // due tipi di input da file
     ENDTIME(1, read_end_time);
-    int x = 1;
-    for (int i = 0; i < length; i++) {
-        if (array[i] > max_digit || array[i] < -max_digit) {
-            printf("ERRORE LETTURA FILE");
-            x = 0;
-        }
-    }
-    printf("%d;", x);
-    if (algorithm == 0) {
-        STARTTIME(2);
-        myRadixsort(array, length);
+    STARTTIME(2);
+    myRadixsort(array, length);
 
-        ENDTIME(2, algo_end_time);
-        for (int i = 1; i < length; i++) {
-            if (array[i - 1] > array[i])
-                printf("ERRORE NEL ARRAY");
-        }
-    } else {
-        STARTTIME(2);
-        radix_sort(array, length);
-        ENDTIME(2, algo_end_time);
-        for (int i = 1; i < length; i++)
-            if (array[i - 1] > array[i])
-                printf("ERRORE NEL ARRAY");
-    }
+    ENDTIME(2, algo_end_time);
     printf("%d;0;%d;0;%.5f;%.5f\n", algorithm, length, read_end_time, algo_end_time);
 
     return 0;
