@@ -63,6 +63,23 @@ void write_on_File(int length, int max_digit, char *FILE_A) {
     fwrite(tmp_array, sizeof(int), length, file);
     fclose(file);
 }
+/**
+ * @brief This function allows to find the maximum and the minimum in an array.
+ * @param arr      pointer to the array that has to be sorted.
+ * @param n        array size.
+ * @param min      pointer to the minimum of the array.
+ * @param max      pointer to the maximum of the array.
+ */
+void getMaxandMin(int *arr, int n, int *min, int *max) {
+    *min = arr[0];
+    *max = arr[0];
+    for (int i = 1; i < n; i++) {
+        if (arr[i] > *max)
+            *max = arr[i];
+        if (arr[i] < *min)
+            *min = arr[i];
+    }
+}
 
 /**
  * @brief The function that separates the array in subarray and starts the sorting process.
@@ -72,8 +89,9 @@ void write_on_File(int length, int max_digit, char *FILE_A) {
  * @param rank           rank of the current process.
  */
 void radix_sort(int *array, int n) {
-    int max = getMax(array, n);
-    int min = getMin(array, n);
+    int max;
+    int min;
+    getMaxandMin(array, n, &min, &max);
 
     for (int digit = 1; (max - min) / digit > 0; digit *= 10) {
         countingSortAlgo1(array, max, min, n, digit);

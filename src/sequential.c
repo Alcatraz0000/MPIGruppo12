@@ -56,8 +56,15 @@ int main(int argc, char **argv) {
     init_structures(&array, length, "VectGruppo12");  // due tipi di input da file
     ENDTIME(1, read_end_time);
     STARTTIME(2);
-    myRadixsort(array, length);
-
+    if (algorithm == 0)
+        myRadixsort(array, length);
+    else
+        radix_sort(array, length);
+    for (int i = 1; i < length; i++)
+        if (array[i - 1] > array[i]) {
+            printf("Array non ordinato\n");
+            break;
+        }
     ENDTIME(2, algo_end_time);
     printf("%d;0;%d;0;%.5f;%.5f\n", algorithm, length, read_end_time, algo_end_time);
 
