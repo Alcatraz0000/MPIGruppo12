@@ -38,6 +38,17 @@
 #include <stdlib.h>
 #include <string.h>
 
+
+/**
+ * @brief This function initializes the array structure needed in the program. It uses two modalities to take inputs depending on the value of mode parameter.
+ * With mode 0 the inputs are read from file sequentially otherwise they are read in a parallel mode with MPI file view. 
+ * @param array         pointer to the array to sort in the sorting algorithm.
+ * @param length        dimension of array, so the number of elements contained in the array.
+ * @param mode          reading from file modality. 
+ * @param rank          rank of the process that is executing the function.
+ * @param num_process   the number of processes that are executing in parallel this function.
+ * @param FILE_A        the name of the file to read on.
+ */
 int init_structures(int **array, int length, int mode, int rank, int num_process, char *FILE_A) {  // implementazione I/O doppio da file
 
     int *tmp_array;
@@ -78,6 +89,18 @@ int init_structures(int **array, int length, int mode, int rank, int num_process
     return 1;
 }
 
+/**
+ * @brief This function calculates the number of positive and negative elements in the array and puts it in the corresponding arrays. 
+ * It also calculates the maximum positive element and the minimum negative element.
+ * @param array         pointer to the array with total elements to sort.
+ * @param size          dimension of the array containing all elements.
+ * @param array_pos     pointer to array used to store the positive elements.
+ * @param array_neg     pointer to array used to store the negative elements.
+ * @param max_pos       pointer to the number of digits of the maximum positive element.
+ * @param max_neg       pointer to the number of digits of the minimum negative element.
+ * @param pos           pointer to the number of positive elements.
+ * @param neg           pointer to the number of negative elements.
+ */
 void getMaxDigitSeq(int array[], int size, int *array_pos, int *array_neg, int *max_pos, int *max_neg, int *pos, int *neg) {
     *max_pos = 0;
     *max_neg = 0;
@@ -112,6 +135,18 @@ void getMaxDigitSeq(int array[], int size, int *array_pos, int *array_neg, int *
     }
 }
 
+
+/**
+ * @brief This function implements the radix sort algorithm for algorithm 0 for a only positive or only negative array, based on counting sort algorithm, 
+ * storing during the computation the frequencies of each element in a vector. Every rank executes a part of the for loop with the corresponding parameters.
+ * The rank 0 process, after each call of the counting sort, saves the results in a vector, restores 0 values in its local vector and waits for other processes sends of the results.
+ * @param array       pointer to the array with the elements to sort, that are only positive or negative.
+ * @param size        dimension of the subarray containing all positive or negative elements.
+ * @param max         maximum number of digits contained in the longer element of this subarray
+ * @param rank        rank of the process that is executing the function.
+ * @param num_process the number of processes that are executing in parallel this function.
+ * @param comm        the Communicator of the MPI processes that are executing the function.
+ */
 void serviceRadixsort(int array[], int size, int max, int rank, int num_process, MPI_Comm comm) {
     // Get maximum element
     int base = 10;
@@ -157,9 +192,11 @@ void serviceRadixsort(int array[], int size, int max, int rank, int num_process,
 }
 
 /**
- * @brief This function allows to find the maximum in an array.
- * @param arr      array.
+ * @brief This function allows to find the maximum and the minimum in an array.
+ * @param arr      pointer to the array that has to be sorted.
  * @param n        array size.
+ * @param min      pointer to the minimum of the array.
+ * @param max      pointer to the maximum of the array.
  */
 void getMaxandMin(int *arr, int n, int *min, int *max) {
     *min = arr[0];
@@ -172,7 +209,15 @@ void getMaxandMin(int *arr, int n, int *min, int *max) {
     }
 }
 
-void countingSortAlgo0(int array[], int base, int size, int raw_index, int *matrix) {
+/**
+ * @brief This function implements the counting sort algorithm based on significant places, for the algorithm 0.
+ * @param array         pointer to the array with the elements to sort, that are only positive or negative.
+ * @param base          the base of the elements analized.
+ * @param size          dimension of the array to order.
+ * @param raw_index     the digit on which the counting has to be executed.  
+ * @param vect          the pointer to the vector in which are stored the frequencies of each positional element.
+ */
+void countingSortAlgo0(int array[], int base, int size, int raw_index, int *vect) {
     int place = 1;
 
     for (int i = 0; i < raw_index; i++)
@@ -189,26 +234,25 @@ void countingSortAlgo0(int array[], int base, int size, int raw_index, int *matr
             min = ((array[i] / place) % base);
     }
 
-    matrix[base] = min;
+    vect[base] = min;
 
     int length = max - min + 1;
     for (int j = 0; j < size; j++)
-        matrix[(((array[j] / place) % base) - min)]++;
+        vect[(((array[j] / place) % base) - min)]++;
 
     // Calculate cumulative count
     for (int j = 1; j < length; j++)
-        matrix[j] += matrix[(j - 1)];
+        vect[j] += vect[(j - 1)];
 }
 
 /**
- * @brief The main function that sorts the array of size n.
- * @param array          array.
- * @param rec_buf        sub-array of each process.
- * @param n              array size.
- * @param digit          number which represent ciphers.
- * @param num_process    number of processes.
+ * @brief This function implements the counting sort for algorithm 1. Every process with rank different from 0 sends its frequencies vector to rank 0 with a MPI reduce,
+ * then the rank 0 calculates the total vector of frequencies with another MPI reduce that sums the local frequencies. 
+ * @param rec_buf        pointer to sub-array of each process.
+ * @param digit          number which represents cipher on which the counting sort is executed.
  * @param rank           rank of the current process.
- * @param dim            dimension of the rec_buf.
+ * @param dim            dimension of the sub-array rec_buf.
+ * @param count          pointer to the output array with the total frequencies of the ciphers.
  */
 void countingSortAlgo1(int* rec_buf,  int digit, int rank, int dim, int min, int* count) {
     // Compute local count for each processes
