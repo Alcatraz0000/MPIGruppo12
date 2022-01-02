@@ -92,10 +92,33 @@ void radix_sort(int *array, int n) {
     int max;
     int min;
     getMaxandMin(array, n, &min, &max);
-
-    for (int digit = 1; (max - min) / digit > 0; digit *= 10) {
-        countingSortAlgo1(array, max, min, n, digit);
+    int max_pos = 0;
+    int tmp_pos = max - min;
+    while (tmp_pos > 0) {
+        tmp_pos /= 10;
+        max_pos++;
     }
+    int *frequencies[max_pos];
+
+    for (int i = 0; i < max_pos; i++) {
+        frequencies[i] = (int *)calloc(10, sizeof(int));
+    }
+    int decimal_digit = 0;
+    for (int digit = 1; (max - min) / digit > 0; digit *= 10) {
+        countingSortAlgo1(array, max, min, n, frequencies[decimal_digit], digit);
+        decimal_digit++;
+    }
+    int *temp_array = (int *)malloc(sizeof(int) * n);
+    int val = 1;
+    for (int j = 0; j < max_pos; j++) {
+        for (int i = n - 1; i >= 0; i--) {
+            temp_array[frequencies[j][((array[i] - min) / val) % 10] - 1] = array[i];
+            frequencies[j][((array[i] - min) / val) % 10]--;
+        }
+        val *= 10;
+        memcpy(array, temp_array, sizeof(int) * n);
+    }
+    free(temp_array);
 }
 
 /**
@@ -119,9 +142,7 @@ int getMin(int *arr, int n) {
     return min;
 }
 
-void countingSortAlgo1(int *vet, int max, int min, int n, int dig) {
-    int Count[10] = {0};
-
+void countingSortAlgo1(int *vet, int max, int min, int n, int *Count, int dig) {
     for (int i = 0; i < n; i++) {
         Count[((vet[i] - min) / dig) % 10]++;
     }
@@ -129,15 +150,6 @@ void countingSortAlgo1(int *vet, int max, int min, int n, int dig) {
     for (int i = 1; i < 10; i++) {
         Count[i] += Count[i - 1];
     }
-
-    int *Output = (int *)malloc(sizeof(int) * n);
-    for (int i = n - 1; i >= 0; i--) {
-        Output[Count[((vet[i] - min) / dig) % 10] - 1] = vet[i];
-        Count[((vet[i] - min) / dig) % 10]--;
-    }
-
-    memcpy(vet, Output, sizeof(int) * n);
-    free(Output);
 }
 
 void getMaxDigitSeq(int array[], int size, int *array_pos, int *array_neg, int *max_pos, int *max_neg, int *pos, int *neg) {

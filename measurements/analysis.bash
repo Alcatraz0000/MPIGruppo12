@@ -36,15 +36,15 @@ TIMEFORMAT='%3U;%3E;%3S;%P'
 #definitions of some variables used in this script:
 
 #number of measurements to be made for each combination 
-NUM_MEASURES=10
+NUM_MEASURES=30
 
 #dimension of item in program vector
-VECT_DIMENSIONS=(60000)
+VECT_DIMENSIONS=(20000000)
 
 #number of threads used in our analysis to evaluate the performance variations
 #with the different types of parallelized and non-parallelized algorithms.
 #N.B. 0 is used for considerate serial execution 
-NUM_PROCESS=(0 2 4)
+NUM_PROCESS=(0 1 2 4 8)
 
 #different options for compiler optimizations in back-end
 COMP_OPT=(2)
@@ -77,7 +77,7 @@ execute(){
         else
             program=$7_O$2
             (export TMPDIR=/tmp
-                time mpirun  -np $4 $6/$program $1 $3 $8 $9) 2>&1 | sed -e ':a' -e 'N' -e '$!ba' -e 's/\n/;/g' -e 's/,/./g' -e 's/;/,/g' >> $5
+                time mpirun --oversubscribe -np $4 $6/$program $1 $3 $8 $9) 2>&1 | sed -e ':a' -e 'N' -e '$!ba' -e 's/\n/;/g' -e 's/,/./g' -e 's/;/,/g' >> $5
         fi
         
 

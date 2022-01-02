@@ -56,5 +56,5 @@ void myRadixsort(int *array, int length);
 void serviceRadixsort(int array[], int size, int max);
 void getMaxDigitSeq(int array[], int length, int *array_pos, int *array_neg, int *max_pos, int *max_neg, int *pos, int *neg);
 void getMaxandMin(int *arr, int n, int *min, int *max);
-void countingSortAlgo1(int *vet, int max, int min, int n, int dig);
+void countingSortAlgo1(int *vet, int max, int min, int n, int *Count, int dig);
 #endif
