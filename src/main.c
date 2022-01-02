@@ -68,7 +68,7 @@ int main(int argc, char **argv) {
         if (rank == 0) {
             for (int i = 1; i < length; i++)
                 if (array[i - 1] > array[i]) {
-                    printf("Errore, array non ordinato!!!");
+                    printf("Errore, array non ordinato!!!;!");
                     break;
                 }
         }
@@ -80,7 +80,7 @@ int main(int argc, char **argv) {
         if (rank == 0) {
             for (int i = 1; i < length; i++)
                 if (array[i - 1] > array[i]) {
-                    printf("Errore, array non ordinato!!!");
+                    printf("Errore, array non ordinato!!!;!");
                     break;
                 }
         }

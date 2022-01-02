@@ -62,7 +62,7 @@ int main(int argc, char **argv) {
         radix_sort(array, length);
     for (int i = 1; i < length; i++)
         if (array[i - 1] > array[i]) {
-            printf("Array non ordinato\n");
+            printf("Array non ordinat;o\n");
             break;
         }
     ENDTIME(2, algo_end_time);

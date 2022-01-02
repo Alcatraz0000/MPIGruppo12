@@ -328,7 +328,7 @@ void radix_sort(int *array, int n, int num_process, int rank) {
     }
 
     int decimal_digit = 0;
-    for (int digit = 1; (local_max - global_min) / digit > 0; digit *= 10) {
+    for (int digit = 1; (global_max - global_min) / digit > 0; digit *= 10) {
         countingSortAlgo1(rec_buf, digit, rank, dim, global_min, frequencies[decimal_digit]);
         decimal_digit++;
     }
@@ -368,8 +368,10 @@ void myRadixsort(int *array, int length, int num_process, int rank) {
         getMaxDigitSeq(array, length, array_pos, array_neg, &max_pos, &max_neg, &size_pos, &size_neg);
 
     if (old_num_process > 1) {
-        MPI_Bcast(&size_pos, 1, MPI_INT, 0, MPI_COMM_WORLD);
+        MPI_Bcast(&max_neg, 1, MPI_INT, 0, MPI_COMM_WORLD);
+        MPI_Bcast(&max_pos, 1, MPI_INT, 0, MPI_COMM_WORLD);
         MPI_Bcast(&size_neg, 1, MPI_INT, 0, MPI_COMM_WORLD);
+        MPI_Bcast(&size_pos, 1, MPI_INT, 0, MPI_COMM_WORLD);
         MPI_Bcast(array_neg, size_neg, MPI_INT, 0, MPI_COMM_WORLD);
         MPI_Bcast(array_pos, size_pos, MPI_INT, 0, MPI_COMM_WORLD);
     }
@@ -386,8 +388,6 @@ void myRadixsort(int *array, int length, int num_process, int rank) {
 
         if ((old_rank % 2) == 0) {
             // rank 0 master negativi sicur
-            MPI_Bcast(&max_neg, 1, MPI_INT, 0, pari);
-
             serviceRadixsort(array_neg, size_neg, max_neg, rank, num_process, pari);
             if (old_rank == 0) {
                 memcpy(array, array_neg, size_neg * sizeof(int));
@@ -395,7 +395,6 @@ void myRadixsort(int *array, int length, int num_process, int rank) {
             }
         } else {
             // rank 1 master poisitivi sicuro
-            MPI_Bcast(&max_pos, 1, MPI_INT, 0, pari);
             serviceRadixsort(array_pos, size_pos, max_pos, rank, num_process, pari);
             if (old_rank == 1) {
                 MPI_Send(array_pos, size_pos, MPI_INT, 0, 0, MPI_COMM_WORLD);
