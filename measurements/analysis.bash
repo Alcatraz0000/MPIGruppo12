@@ -39,7 +39,8 @@ TIMEFORMAT='%3U;%3E;%3S;%P'
 NUM_MEASURES=20
 
 #dimension of item in program vector
-VECT_DIMENSIONS=(6000000)
+
+VECT_DIMENSIONS=(10000001)
 
 #number of threads used in our analysis to evaluate the performance variations
 #with the different types of parallelized and non-parallelized algorithms.
@@ -50,7 +51,7 @@ NUM_PROCESS=(0 2 4 8)
 COMP_OPT=(2)
 
 #reference to programs 0 for radix sort based on counting sort, 1 for radix based on brutal algorithms
-ALGORITHMS=(1)
+ALGORITHMS=(0)
 
 # QUA DEVESCRIVERE CAMILLAAAAAreference to programs 0 for radix sort based on counting sort, 1 for radix based on brutal algorithms
 INIT_MODE=(0)
