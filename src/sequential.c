@@ -44,7 +44,7 @@ int main(int argc, char **argv) {
     double read_end_time = 0.0;
     int length, algorithm, max_digit;
     if (argc < 4) {
-        printf("ERROR! Usage: ./main rows columns threads");
+        printf("ERROR! Usage: ./main length algorithm max_digit");
         exit(1);
     }
 

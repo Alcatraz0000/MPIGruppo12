@@ -302,7 +302,7 @@ void radix_sort(int *array, int n, int num_process, int rank) {
         free(sendcounts);
         free(displs);
     }
-    // ogi processo calcolerà il massimo tra i suoi elementi
+    // ogni processo calcolerà il massimo tra i suoi elementi
     int local_max, local_min;
     getMaxandMin(rec_buf, dim, &local_min, &local_max);
 
