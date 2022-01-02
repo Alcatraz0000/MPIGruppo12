@@ -62,9 +62,11 @@ int init_structures(int **array, int length, int mode, int rank, int num_process
             perror("Memory Allocation - tmp_array");
         MPI_File fh_a;
         MPI_Datatype dt_row_a;
+
         MPI_Type_contiguous(dim, MPI_INT, &dt_row_a);
         MPI_Type_commit(&dt_row_a);
         MPI_File_open(MPI_COMM_WORLD, FILE_A, MPI_MODE_CREATE | MPI_MODE_RDWR, MPI_INFO_NULL, &fh_a);
+
         int displacement = rank * (dim) * sizeof(int);
 
         MPI_File_set_view(fh_a, displacement, MPI_INT, dt_row_a, "native", MPI_INFO_NULL);
@@ -118,31 +120,21 @@ void serviceRadixsort(int array[], int size, int max, int rank, int num_process,
     int i = 0, j = 0;
     MPI_Request request;
     int dest = rank % 2;
-    if (num_process == 1){
-        for (int i = rank; i < max; i += num_process) {
-            memset(vect_local, 0, base*sizeof(int));
-            countingSortAlgo0(array, base, size, i, vect_local);
+
+    // Apply counting sort to sort elements based on place value.
+    for (int i = rank; i < max; i += num_process) {
+        memset(vect_local, 0, base * sizeof(int));
+        countingSortAlgo0(array, base, size, i, vect_local);
+        if (rank != 0) {
+            MPI_Send(vect_local, base + 1, MPI_INT, 0, 0, comm);
+        } else {
             for (int k = 0; k < base + 1; k++) {
                 vect[i * (base + 1) + k] = vect_local[k];
+                vect_local[k] = 0;
             }
-        }
-    }else{
-        // Apply counting sort to sort elements based on place value.
-        for (int i = rank; i < max; i += num_process) {
-            memset(vect_local, 0, base*sizeof(int));
-            countingSortAlgo0(array, base, size, i, vect_local);
-            if(rank != 0) {
-                MPI_Send(vect_local, base + 1, MPI_INT, 0, 0, comm);
+            for (j = i + 1; j < max && j < i + num_process; j++) {
+                MPI_Recv(vect + (j) * (base + 1), base + 1, MPI_INT, j % num_process, 0, comm, MPI_STATUS_IGNORE);
             }
-            else{
-                for (int k = 0; k < base + 1; k++) {
-                    vect[i * (base + 1) + k] = vect_local[k];
-                    vect_local[k] = 0;
-                }
-                for (j = i + 1; j < max && j < i + num_process; j++) {
-                    MPI_Recv(vect + (j) * (base + 1), base + 1, MPI_INT, j % num_process, 0, comm, MPI_STATUS_IGNORE);
-                }
-            } 
         }
     }
 
@@ -169,7 +161,7 @@ void serviceRadixsort(int array[], int size, int max, int rank, int num_process,
  * @param arr      array.
  * @param n        array size.
  */
-int getMaxandMin(int *arr, int n, int *min, int *max) {
+void getMaxandMin(int *arr, int n, int *min, int *max) {
     *min = arr[0];
     *max = arr[0];
     for (int i = 1; i < n; i++) {
