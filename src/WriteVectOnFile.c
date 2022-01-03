@@ -28,7 +28,7 @@
  */
 
 /**
-        @file main.c
+        @file WriteVectOnFile.c
 
 */
 #include <stdio.h>

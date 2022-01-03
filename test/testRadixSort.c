@@ -40,27 +40,39 @@
 
 #include "RadixSort.h"
 
-typedef void (*decorableMM)(int *, int, int, int);
 
 /**
- * @brief This function tests the dot product between the matrix 'a' and the array 'b'.
- * @param expec      expected dot product result.
- * @param size       size of the result.
- * @param a          pointer to the matrix used in the dot product.
- * @param b          pointer to the array used in the dot product.
- * @param result     pointer to array used to store the result of dot product.
- * @param rows       number of rows.
- * @param columns    number of columns.
- * @param threads    number of threads.
- * @param dot        decorated dot product function.
+ * @brief This function tests the first radix sort algorithm.
+ * @param vect      is the vector to order.
+ * @param length       size of the array "vect".
+ * @param num_process          number of processes used in this test.
+ * @param rank          rank of the process.
  */
-void test_radixsort(int *vect, int length, int num_process, int rank, decorableMM mm) {
-    mm(vect, length, num_process, rank);
-    printf("Starting raxisorttest\n");
-    for (int i = 1; i < length; i++) {
+void test_myRadixsort(int *vect, int length, int num_process, int rank) {
+    myRadixsort(vect, length, num_process, rank);
+    for (int i = 1; i < length; i++)
         assert(vect[i - 1] <= vect[i]);
-    }
 }
+
+/**
+ * @brief This function tests the second radix sort algorithm.
+ * @param vect      is the vector to order.
+ * @param length       size of the array "vect".
+ * @param num_process          number of process used in this test.
+ * @param rank          rank of the process.
+ */
+void test_radix_sort(int *vect, int length, int num_process, int rank) {
+    radix_sort(&vect, vect, length, num_process, rank);
+    for (int i = 1; i < length; i++)
+        assert(vect[i - 1] <= vect[i]);
+}
+
+/**
+ * @brief This function check that the first array contain the same element of second.
+ * @param vect1      is the vector ordered.
+ * @param vect2       is the vect for comparison.
+ * @param length          size of the array "vect".
+ */
 void test_correct_elements(int *vect1, int *vect2, int length) {
     int i, j;
     int outOfRange = -4;
@@ -68,7 +80,6 @@ void test_correct_elements(int *vect1, int *vect2, int length) {
         if (vect1[i] > outOfRange)
             outOfRange = vect1[i] + 1;
     }
-    printf("Starting test_correct_elemetns\n");
     for (i = 0; i < length; i++) {
         for (j = 0; j < length; j++) {
             if (vect1[i] == vect2[j]) {
@@ -81,15 +92,21 @@ void test_correct_elements(int *vect1, int *vect2, int length) {
     }
 }
 
+/**
+ * @brief This main function call function for test the correctness of two radixsorts.
+ * @param argc      classic value not used.
+ * @param argv       classic value not used.
+ */
 int main(int argc, char *argv[]) {
-    printf("Starting\n");
+    printf("\nPREPARING VARIABLES FOR RADIXSORTS TESTS\n");
     int rank, num_process;
     MPI_Init(&argc, &argv);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &num_process);
-    int length = 27;
-    printf("Initialized test variables\n");
-    int a1[] = {15, 40, 65, 90, 0, 115, 30, 80, 130, 180, 230, 45, 120, 195, 270, 345, 0, 60, 160, 260, 360, 460, 75, 200, 325, 450, 575};
+    printf("I'm using %d process\n", num_process);
+    int length = 28;
+    printf("Initialized arrays\n");
+    int a1[] = {15, 40, 65, 90, 0, 115, 30, 80, 130, 180, 230, 45, 120, 195, 270, 345, 0, 60, 160, 260, 360, 460, 75, 200, 325, 450, 575, -31};
     int a2[length];
     int a3[length];
     for (int i = 0; i < length; i++) {
@@ -101,36 +118,40 @@ int main(int argc, char *argv[]) {
     }
 
     int result[length];
+    printf("\nSTARTING TESTS FOR RADIX SORT FUNCTIONS:\n");
 
-    printf("Initialized test countings B\n");
-
+    printf("Starting radixsort test for first algorithm\n");
     memcpy(result, a1, length * sizeof(int));
-    test_radixsort(result, length, num_process, rank, myRadixsort);
+    test_myRadixsort(result, length, num_process, rank);
     test_correct_elements(a1, result, length);
+    printf("...PASSED 1/3\n");
 
     memcpy(result, a2, length * sizeof(int));
-    test_radixsort(result, length, num_process, rank, myRadixsort);
+    test_myRadixsort(result, length, num_process, rank);
     test_correct_elements(a2, result, length);
+    printf("...PASSED 2/3\n");
 
     memcpy(result, a3, length * sizeof(int));
-    test_radixsort(result, length, num_process, rank, myRadixsort);
+    test_myRadixsort(result, length, num_process, rank);
     test_correct_elements(a3, result, length);
+    printf("...PASSED 3/3\n");
 
+    printf("Starting radixsort test for second algorithm\n");
     memcpy(result, a1, length * sizeof(int));
-    test_radixsort(result, length, num_process, rank, radix_sort);
-
+    test_radix_sort(result, length, num_process, rank);
     test_correct_elements(a1, result, length);
+    printf("...PASSED 1/3\n");
 
     memcpy(result, a2, length * sizeof(int));
-    test_radixsort(result, length, num_process, rank, radix_sort);
-
+    test_radix_sort(result, length, num_process, rank);
     test_correct_elements(a2, result, length);
+    printf("...PASSED 2/3\n");
 
     memcpy(result, a3, length * sizeof(int));
-    test_radixsort(result, length, num_process, rank, radix_sort);
-
+    test_radix_sort(result, length, num_process, rank);
     test_correct_elements(a3, result, length);
+    printf("...PASSED 3/3\n");
 
-    printf("Tested mm ... Done");
+    printf("Tested ... Done");
     exit(EXIT_SUCCESS);
 }

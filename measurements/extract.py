@@ -39,6 +39,7 @@ from prettytable import MARKDOWN
 from prettytable import MSWORD_FRIENDLY
 import re
 
+
 # set_up of what we want in addiction from every categories of measure
 set_up = {
     'init': {
@@ -73,10 +74,9 @@ set_up = {
     }
 }
 
+
 # @brief main function that call other to extract all data in different folders
 # @param root_algorithm_folders = the root were save all measurements extracted in different configuration
-
-
 def extraction(root_algorithm_folders):
     # obtain all directory that respect folders_condition for the measurement
 
@@ -92,8 +92,6 @@ def extraction(root_algorithm_folders):
 
 # @brief call from main function to extract folders for different sizes
 # @param root = the root were save measurements extracted organized for size
-
-
 def extract_from_init_folders(root_init_folders):
     init_folders = [f for f in os.listdir(root_init_folders) if (
         folders_condition(root_init_folders, f, "INIT_MODE-[0-9]"))]
@@ -106,8 +104,6 @@ def extract_from_init_folders(root_init_folders):
 
 # @brief call from main function to extract folders for different sizes
 # @param root = the root were save measurements extracted organized for size
-
-
 def extract_from_size_folders(root_size_folders):
     size_folders = [f for f in os.listdir(root_size_folders) if (
         folders_condition(root_size_folders, f, "SIZE-[0-9]"))]
@@ -117,10 +113,9 @@ def extract_from_size_folders(root_size_folders):
         max_digit_path = os.path.join(root_size_folders, size_folder)
         extract_from_max_digit_folders(max_digit_path)
 
+
 # @brief call from main function to extract folders for different max digit
 # @param root = the root were save measurements extracted organized for max digit
-
-
 def extract_from_max_digit_folders(root_max_digit_folders):
     max_digit_folders = [f for f in os.listdir(root_max_digit_folders) if (
         folders_condition(root_max_digit_folders, f, "MAX_DIGIT-[0-9]"))]
@@ -131,10 +126,9 @@ def extract_from_max_digit_folders(root_max_digit_folders):
             root_max_digit_folders, max_digit_folder)
         extract_from_optimization_folders(optimization_path)
 
+
 # @brief call from main function to extract folders for different optimization
 # @param root = the root were save measurements extracted organized for optimization
-
-
 def extract_from_optimization_folders(root_opt_folders):
     optimization_folders = [f for f in os.listdir(root_opt_folders) if
                             (folders_condition(root_opt_folders, f, "OPTIMIZATION-O[0-9]"))]
@@ -144,12 +138,10 @@ def extract_from_optimization_folders(root_opt_folders):
         # call function that extract measurements
         create_table_from_measure(_extract(complete_path), complete_path)
 
+
 # @brief return a table containing values analized for different configurations
 # @param subdir_where_measure = the directories in which found values obtained
 # @param complete_path = the path in which save different tables
-# CAMBIA QUA!!!!
-
-
 def create_table_from_measure(subdir_where_measure, complete_path):
     # save header
     header = {
@@ -190,10 +182,9 @@ def create_table_from_measure(subdir_where_measure, complete_path):
     table = _make_table(header['values'], cells['values'], name=table_filename)
     _plot_from_table(header["values"], cells["values"], name=plot_filename)
 
+
 # @brief return all measures for all configurations obtained by all data captured
 # @param path_were_extract = the root were extract all measures
-
-
 def _extract(path_were_extract):
     # save the path were i'm now
     prev = os.getcwd()
@@ -251,12 +242,11 @@ def _extract(path_were_extract):
     # return all correct measure of all files in this folder
     return all_measure_for_all_configuration
 
+
 # @brief main function to compute speedup for values obtained
 # @param t = time for serial algorithm
 # @param tp = time for parallel algorithm
 # @param nt = number of threads
-
-
 def _compute_speedup(t, tp, nt):
     speedup = t / tp
     efficiency = t / (tp * float(nt))
@@ -280,14 +270,13 @@ def file_condition(file):
         return True
     return False
 
+
 # @brief produce a table from data
 # @param header = name of field
 # @param rows = number of elements to table
 # @param print_table = boolean that explain if print the table
 # @param save = boolean that explain if save the table
 # @param name = pathe where save the table
-
-
 def _make_table(header, rows, print_table=False, save=True, name=""):
     if save and not name:
         raise Exception("No filename to save file")
@@ -301,14 +290,13 @@ def _make_table(header, rows, print_table=False, save=True, name=""):
         print(x)
     return x
 
+
 # @brief produce a plot from data
 # @param header = name of axis
 # @param rows = number of elements to plot
 # @param save = boolean that explain if save the plot
 # @param name = pathe where save the plot
 # @param show_plot = boolean that explain if show the plot
-
-
 def _plot_from_table(header, rows, save=True, name="", show_plot=False):
     if save and not name:
         raise Exception("No filename to save file")
@@ -352,8 +340,6 @@ def _plot_from_table(header, rows, save=True, name="", show_plot=False):
 # @brief save a table in a file
 # @param table = reference to table
 # @param filename = reference to file
-
-
 def _save_table(table, filename):
     with open(filename, "w") as table_file:
         # table.set_style(MARKDOWN)
@@ -362,6 +348,7 @@ def _save_table(table, filename):
         table_file.write(data)
 
 
+# @brief mane that call funtion for extract measure
 if __name__ == "__main__":
     # root_for_extraction = the name of directory where is this file by adding a subdirectory measure
     root_for_extraction = os.path.join(

@@ -42,27 +42,61 @@
 
 #define FILE_A "TestVectGruppo12"
 
-void test_init_structures(int *vect1, int length, int mode, int rank, int num_process) {
+/**
+ * @brief This function tests the lectures from file of the first algorithm.
+ * @param vect1      is the vector were isert element from the file.
+ * @param length       size of the array "vect1".
+ * @param mode          mode; 0 for sequential lecture, 1 for parallel.
+ * @param rank          rank of the process.
+ * @param num_process          total number of processes.
+ */
+void test_init_structures_algorithm0(int *vect1, int length, int mode, int rank, int num_process) {
     FILE *file = fopen(FILE_A, "w");
     fwrite(vect1, sizeof(int), length, file);
     fclose(file);
 
     int *result;
-    //  init_structures(&result, length, mode, rank, num_process, FILE_A);
+    init_structures(&result, length, mode, rank, num_process, FILE_A);
     if (rank == 0)
-        for (int i = 0; i < length; i++) {
+        for (int i = 0; i < length; i++)
             if (vect1[i] != result[i])
                 assert(0);
-        }
 }
 
+/**
+ * @brief This function tests the lectures from file of the first algorithm.
+ * @param vect1      is the vector were isert element from the file.
+ * @param length       size of the array "vect1".
+ * @param mode          mode; 0 for sequential lecture, 1 for parallel.
+ * @param rank          rank of the process.
+ * @param num_process          total number of processes.
+ */
+void test_init_structures_algorithm1(int *vect1, int length, int mode, int rank, int num_process) {
+    FILE *file = fopen(FILE_A, "w");
+    fwrite(vect1, sizeof(int), length, file);
+    fclose(file);
+
+    int *result;
+    init_structuresAlgo1(&result, length, rank, num_process, FILE_A);
+    if (rank == 0)
+        for (int i = 0; i < length; i++)
+            if (vect1[i] != result[i])
+                assert(0);
+}
+
+/**
+ * @brief This main function call function for test the correctness of lectures from file functions.
+ * @param argc      classic value not used.
+ * @param argv       classic value not used.
+ */
 int main(int argc, char *argv[]) {
-    printf("Starting\n");
+    
+    printf("\nPREPARING VARIABLES FOR LECTURES FROM FILE'S TESTS\n");
     int rank, num_process;
     MPI_Init(&argc, &argv);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &num_process);
-    printf("I'm using %d process", num_process);
+    printf("I'm using %d process\n", num_process);
     int length = 27;
     int a1[] = {15, 40, 65, 90, 0, 115, 30, 80, 130, 180, 230, 45, 120, 195, 270, 345, 0, 60, 160, 260, 360, 460, 75, 200, 325, 450, 575};
     int a2[length];
@@ -76,17 +110,35 @@ int main(int argc, char *argv[]) {
     }
 
     int *result;
+    printf("\nSTARTING TESTS FOR LECTURE FROM FILE FUNCTIONS:\n");
 
-    printf("Initialized test countings B\n");
+    printf("Starting tests for sequential lecture used in first algorithm\n");
+    test_init_structures_algorithm0(a1, length, 0, rank, num_process);
+    printf("...PASSED 1/3\n");
+    test_init_structures_algorithm0(a2, length, 0, rank, num_process);
+    printf("...PASSED 2/3\n");
+    test_init_structures_algorithm0(a3, length, 0, rank, num_process);
+    printf("...PASSED 3/3\n");
+    
 
-    test_init_structures(a1, length, 0, rank, num_process);
-    test_init_structures(a2, length, 0, rank, num_process);
-    test_init_structures(a3, length, 0, rank, num_process);
+    printf("Starting tests for parallel lecture used in first algorithm\n");
+    test_init_structures_algorithm0(a1, length, 1, rank, num_process);
+    printf("...PASSED 1/3\n");
+    test_init_structures_algorithm0(a2, length, 1, rank, num_process);
+    printf("...PASSED 2/3\n");
+    test_init_structures_algorithm0(a3, length, 1, rank, num_process);
+    printf("...PASSED 3/3\n");
+    
 
-    test_init_structures(a1, length, 1, rank, num_process);
-    test_init_structures(a2, length, 1, rank, num_process);
-    test_init_structures(a3, length, 1, rank, num_process);
+    printf("Starting tests for parallel lecture used in second algorithm\n");
+    test_init_structures_algorithm1(a1, length, 1, rank, num_process);
+    printf("...PASSED 1/3\n");
+    test_init_structures_algorithm1(a2, length, 1, rank, num_process);
+    printf("...PASSED 2/3\n");
+    test_init_structures_algorithm1(a3, length, 1, rank, num_process);
+    printf("...PASSED 3/3\n");
+    
 
-    printf("Tested mm ... Done");
+    printf("Tested ... Done");
     exit(EXIT_SUCCESS);
 }
