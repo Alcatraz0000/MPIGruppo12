@@ -353,19 +353,19 @@ void radix_sort(int **glob_array, int *tmp_array, int n, int num_process, int ra
         }
     }
 
-    int decimal_digit = 0;
-    for (int digit = 1; (global_max - global_min) / digit > 0; digit *= 10) {
-        countingSortAlgo1(tmp_array, digit, rank, dim, global_min, frequencies[decimal_digit]);
-        decimal_digit++;
+    int *dime;
+    dime = (int *)malloc(sizeof(int) * num_process);
+    dime[0] = n / num_process + n % num_process;
+    for (int i = 1; i < num_process; i++) {
+        dime[i] = n / num_process;
     }
-    if (rank != 0)
-        MPI_Send(tmp_array, dim, MPI_INT, 0, 0, MPI_COMM_WORLD);
-    if (rank == 0) {
-        memcpy(array, tmp_array, sizeof(int) * dim);
-        for (int i = 1; i < num_process; i++)
-            MPI_Recv(array + dim + (i - 1) * other, other, MPI_INT, i, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    int *displa;
+    displa = (int *)malloc(sizeof(int) * num_process);
+    displa[0] = 0;
+    for (int i = 1; i < num_process; i++) {
+        displa[i] = i * n / num_process + n % num_process;
     }
-
+    MPI_Gatherv(tmp_array, dim, MPI_INT, array, dime, displa, MPI_INT, 0, MPI_COMM_WORLD);
     if (rank == 0) {
         int *temp_array = (int *)malloc(sizeof(int) * n);
         int val = 1;
