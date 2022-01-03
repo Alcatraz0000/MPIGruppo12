@@ -59,8 +59,8 @@ int main(int argc, char **argv) {
     max_digit = atoi(argv[4]);
     int length_tmp = length;
     read_start_time = MPI_Wtime();
-    if (init_mode == 0)
-        init_structuresAlgo0(&array, length, rank, num_process, "VectGruppo12");
+    if (algorithm == 0)
+        init_structures(&array, length, init_mode, rank, num_process, "VectGruppo12");
     else {
         init_structuresAlgo1(&tmp, length, rank, num_process, "VectGruppo12");
     }

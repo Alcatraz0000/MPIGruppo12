@@ -42,6 +42,7 @@
 /* Token concatenation used */
 
 void init_structuresAlgo0(int **array, int length, int rank, int num_process, char *FILE_A);
+int init_structures(int **array, int length, int mode, int rank, int num_process, char *FILE_A);
 void init_structuresAlgo1(int **array, int length, int rank, int num_process, char *FILE_A);
 void write_on_File(int size, int max_digit, char *FILE_A);
 void getMaxandMin(int *arr, int n, int *min, int *max);
