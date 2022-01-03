@@ -11,20 +11,20 @@
  *
  * Copyright (C) 2021 - All Rights Reserved
  *
- * This file is part of Contest-OMP: RadixSort.
+ * This file is part of Contest-MPI: RadixSort.
  *
- * Contest-OMP: RadixSort is free software: you can redistribute it and/or modify
+ * Contest-MPI: RadixSort is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * Contest-OMP: RadixSort is distributed in the hope that it will be useful,
+ * Contest-MPI: RadixSort is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with Contest-OMP: RadixSort.  If not, see <http://www.gnu.org/licenses/>.
+ * along with Contest-MPI: RadixSort.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 /**
@@ -37,7 +37,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
+/**
+ * @brief This function initializes the array structure needed in the program. It uses two modalities to take inputs depending on the value of mode parameter.
+ * With mode 0 the inputs are read from file sequentially otherwise they are read in a parallel mode with MPI file view.
+ * @param array         pointer to the array to sort in the sorting algorithm.
+ * @param length        dimension of array, so the number of elements contained in the array.
+ * @param mode          reading from file modality.
+ * @param rank          rank of the process that is executing the function.
+ * @param num_process   the number of processes that are executing in parallel this function.
+ * @param FILE_A        the name of the file to read on.
+ */
 void init_structures(int **array, int length, int mode, int rank, int num_process, char *FILE_A) {
     int *tmp_array;
 
@@ -76,30 +85,14 @@ void init_structures(int **array, int length, int mode, int rank, int num_proces
 }
 
 /**
- * @brief This function initializes the array structure needed in the program. It uses two modalities to take inputs depending on the value of mode parameter.
- * With mode 0 the inputs are read from file sequentially otherwise they are read in a parallel mode with MPI file view.
- * @param array         pointer to the array to sort in the sorting algorithm.
+ * @brief This function initializes the array structure needed in the program.
+ * The inputs are read in a parallel mode with MPI file view.
+ * @param array         pointer to the portion of array to sort in the sorting algorithm.
  * @param length        dimension of array, so the number of elements contained in the array.
- * @param mode          reading from file modality.
  * @param rank          rank of the process that is executing the function.
  * @param num_process   the number of processes that are executing in parallel this function.
  * @param FILE_A        the name of the file to read on.
  */
-void init_structuresAlgo0(int **array, int length, int rank, int num_process, char *FILE_A) {  // implementazione I/O doppio da file
-
-    int *tmp_array;
-
-    tmp_array = (int *)malloc(length * sizeof(int));
-    if (tmp_array == NULL)
-        perror("Memory Allocation - tmp_array");
-    if (rank == 0) {
-        FILE *file = fopen(FILE_A, "r");
-        if (fread(tmp_array, sizeof(int), length, file) != length)
-            perror("error during lecture from file");
-        fclose(file);
-        *array = tmp_array;
-    }
-}
 
 void init_structuresAlgo1(int **array, int length, int rank, int num_process, char *FILE_A) {  // implementazione I/O doppio da file
     int dim;
@@ -309,9 +302,12 @@ void countingSortAlgo1(int *rec_buf, int digit, int rank, int dim, int min, int 
 }
 
 /**
- * @brief The function that separates the array in subarray and starts the sorting process.
- * @param array          array.
- * @param n              array size.
+ * @brief The function take the subarray and starts the sorting process.
+ * After the countingSortAlgo (executed by all process) all process send the subarry to the root process and this one
+ * compute the frequencies and recreate the array.
+ * @param glob_array     empty array. At the end of function this array contains the sortered array.
+ * @param tmp_array      this array contains the subarrray of all process.
+ * @param n              global array size.
  * @param num_process    number of processes.
  * @param rank           rank of the current process.
  */
@@ -380,7 +376,12 @@ void radix_sort(int **glob_array, int *tmp_array, int n, int num_process, int ra
         *glob_array = array;
     }
 }
-
+/**
+ * @brief This function instantiates two different arrays for store separately positive and negative values, in order to separate the operation of sorting.
+ * @param array      pointer to the array with total elements to sort.
+ * @param size       dimension of the array containing all elements.
+ * @param threads    number of threads.
+ */
 void myRadixsort(int *array, int length, int num_process, int rank) {
     int *array_pos = (int *)malloc(length * sizeof(int));
     if (array_pos == NULL)

@@ -13,20 +13,20 @@
 #
 # Copyright (C) 2021 - All Rights Reserved
 #
-# This file is part of Contest-OMP: RadixSort.
+# This file is part of Contest-MPI: RadixSort.
 #
-# Contest-OMP: RadixSort is free software: you can redistribute it and/or modify
+# Contest-MPI: RadixSort is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# Contest-OMP: RadixSort is distributed in the hope that it will be useful,
+# Contest-MPI: RadixSort is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with Contest-OMP: RadixSort.  If not, see <http://www.gnu.org/licenses/>.
+# along with Contest-MPI: RadixSort.  If not, see <http://www.gnu.org/licenses/>.
 #
 
 #specific the formats of time
@@ -36,11 +36,11 @@ TIMEFORMAT='%3U;%3E;%3S;%P'
 #definitions of some variables used in this script:
 
 #number of measurements to be made for each combination 
-NUM_MEASURES=2
+NUM_MEASURES=50
 
 #dimension of item in program vector
 
-VECT_DIMENSIONS=(2)
+VECT_DIMENSIONS=(200)
 
 #number of threads used in our analysis to evaluate the performance variations
 #with the different types of parallelized and non-parallelized algorithms.

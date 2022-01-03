@@ -1,30 +1,34 @@
 /*
- * Course: High Performance Computing 2020/2021
+ * Course: High Performance Computing 2021/2022
  *
  * Lecturer: Francesco Moscato	fmoscato@unisa.it
  *
  * Group:
+ * Marseglia	Mattia		0622701697	    m.marseglia1@studenti.unisa.it
+ * Spingola     Camilla		0622701698  	c.spingola@studenti.unisa.it
+ * Turi		    Vito		0622701795  	v.turi3@studenti.unisa.it
+ * Sica 		Ferdinando	0622701794	    f.sica24@studenti.unisa.it
  *
  * Copyright (C) 2021 - All Rights Reserved
  *
- * This file is part of CommonAssignmentMPI01.
+ * This file is part of Contest-MPI: RadixSort.
  *
- * CommonAssignmentMPI01 is free software: you can redistribute it and/or modify
+ * Contest-MPI: RadixSort is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * CommonAssignmentMPI01 is distributed in the hope that it will be useful,
+ * Contest-MPI: RadixSort is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with CommonAssignmentMPI01.  If not, see <http://www.gnu.org/licenses/>.
+ * along with Contest-MPI: RadixSort.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 /**
-        @file test.c
+        @file testReadWriteFile.c
 */
 
 #include <assert.h>
