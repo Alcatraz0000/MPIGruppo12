@@ -38,7 +38,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-int init_structures(int **array, int length, int mode, int rank, int num_process, char *FILE_A) {
+void init_structures(int **array, int length, int mode, int rank, int num_process, char *FILE_A) {
     int *tmp_array;
 
     if (mode == 0) {
@@ -116,7 +116,11 @@ void init_structuresAlgo1(int **array, int length, int rank, int num_process, ch
 
     MPI_Type_contiguous(dim, MPI_INT, &dt_row_a);
     MPI_Type_commit(&dt_row_a);
+<<<<<<< HEAD
     MPI_File_open(MPI_COMM_WORLD, "VectTestGruppo12", MPI_MODE_CREATE | MPI_MODE_RDWR, MPI_INFO_NULL, &fh_a);
+=======
+    MPI_File_open(MPI_COMM_WORLD, FILE_A, MPI_MODE_CREATE | MPI_MODE_RDWR, MPI_INFO_NULL, &fh_a);
+>>>>>>> bd246858334558c0635e1ff94e508e47567499c4
     int displacement;
     if (rank != 0) displacement = (rank * dim + length % num_process) * sizeof(int);
     if (rank == 0) displacement = (rank * dim) * sizeof(int);
@@ -124,6 +128,10 @@ void init_structuresAlgo1(int **array, int length, int rank, int num_process, ch
     MPI_File_set_view(fh_a, displacement, MPI_INT, dt_row_a, "native", MPI_INFO_NULL);
     if (MPI_File_read(fh_a, *array, 1, dt_row_a, MPI_STATUS_IGNORE) != MPI_SUCCESS)
         perror("error during lecture from file with MPI");
+<<<<<<< HEAD
+=======
+
+>>>>>>> bd246858334558c0635e1ff94e508e47567499c4
     // MPI_Gather(tmp_array, dim, MPI_INT, *array, dim, MPI_INT, 0, MPI_COMM_WORLD);
 }
 
