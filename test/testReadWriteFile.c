@@ -44,7 +44,7 @@ void test_init_structures(int *vect1, int length, int mode, int rank, int num_pr
     fclose(file);
 
     int *result;
-    init_structures(&result, length, mode, rank, num_process, FILE_A);
+    //  init_structures(&result, length, mode, rank, num_process, FILE_A);
     if (rank == 0)
         for (int i = 0; i < length; i++) {
             if (vect1[i] != result[i])

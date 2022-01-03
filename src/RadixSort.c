@@ -48,44 +48,46 @@
  * @param num_process   the number of processes that are executing in parallel this function.
  * @param FILE_A        the name of the file to read on.
  */
-int init_structures(int **array, int length, int mode, int rank, int num_process, char *FILE_A) {  // implementazione I/O doppio da file
+void init_structuresAlgo0(int **array, int length, int rank, int num_process, char *FILE_A) {  // implementazione I/O doppio da file
 
     int *tmp_array;
 
-    if (mode == 0) {
-        tmp_array = (int *)malloc(length * sizeof(int));
-        if (tmp_array == NULL)
-            perror("Memory Allocation - tmp_array");
-        if (rank == 0) {
-            FILE *file = fopen(FILE_A, "r");
-            if (fread(tmp_array, sizeof(int), length, file) != length)
-                perror("error during lecture from file");
-            fclose(file);
-            *array = tmp_array;
-        }
-    } else {
-        int dim = length / num_process + 1;
-        if (rank == 0)
-            *array = (int *)malloc(length * sizeof(int));
-        int *tmp_array = (int *)calloc(dim, sizeof(int));
-        if (tmp_array == NULL)
-            perror("Memory Allocation - tmp_array");
-        MPI_File fh_a;
-        MPI_Datatype dt_row_a;
-
-        MPI_Type_contiguous(dim, MPI_INT, &dt_row_a);
-        MPI_Type_commit(&dt_row_a);
-        MPI_File_open(MPI_COMM_WORLD, FILE_A, MPI_MODE_CREATE | MPI_MODE_RDWR, MPI_INFO_NULL, &fh_a);
-
-        int displacement = rank * (dim) * sizeof(int);
-
-        MPI_File_set_view(fh_a, displacement, MPI_INT, dt_row_a, "native", MPI_INFO_NULL);
-        if (MPI_File_read(fh_a, tmp_array, 1, dt_row_a, MPI_STATUS_IGNORE) != MPI_SUCCESS)
-            perror("error during lecture from file with MPI");
-        MPI_Gather(tmp_array, dim, MPI_INT, *array, dim, MPI_INT, 0, MPI_COMM_WORLD);
+    tmp_array = (int *)malloc(length * sizeof(int));
+    if (tmp_array == NULL)
+        perror("Memory Allocation - tmp_array");
+    if (rank == 0) {
+        FILE *file = fopen(FILE_A, "r");
+        if (fread(tmp_array, sizeof(int), length, file) != length)
+            perror("error during lecture from file");
+        fclose(file);
+        *array = tmp_array;
     }
+}
 
-    return 1;
+void init_structuresAlgo1(int **array, int length, int rank, int num_process, char *FILE_A) {  // implementazione I/O doppio da file
+    int dim;
+    if (rank == 0) {
+        dim = length / num_process + length % num_process;
+    } else {
+        dim = length / num_process;
+    }
+    *array = (int *)calloc(dim, sizeof(int));
+    if (*array == NULL)
+        perror("Memory Allocation - tmp_array");
+    MPI_File fh_a;
+    MPI_Datatype dt_row_a;
+
+    MPI_Type_contiguous(dim, MPI_INT, &dt_row_a);
+    MPI_Type_commit(&dt_row_a);
+    MPI_File_open(MPI_COMM_WORLD, "VectTestGruppo12", MPI_MODE_CREATE | MPI_MODE_RDWR, MPI_INFO_NULL, &fh_a);
+    int displacement;
+    if (rank != 0) displacement = (rank * dim + length % num_process) * sizeof(int);
+    if (rank == 0) displacement = (rank * dim) * sizeof(int);
+
+    MPI_File_set_view(fh_a, displacement, MPI_INT, dt_row_a, "native", MPI_INFO_NULL);
+    if (MPI_File_read(fh_a, *array, 1, dt_row_a, MPI_STATUS_IGNORE) != MPI_SUCCESS)
+        perror("error during lecture from file with MPI");
+    // MPI_Gather(tmp_array, dim, MPI_INT, *array, dim, MPI_INT, 0, MPI_COMM_WORLD);
 }
 
 /**
@@ -276,37 +278,24 @@ void countingSortAlgo1(int *rec_buf, int digit, int rank, int dim, int min, int 
  * @param num_process    number of processes.
  * @param rank           rank of the current process.
  */
-void radix_sort(int *array, int n, int num_process, int rank) {
-    int rem = n % num_process;  // elements remaining after division among processes
-    int dim, displacement;
 
-    if (rank < rem) {
-        dim = n / num_process + 1;  // ne metto uno in piu a tutti
-        displacement = rank * dim;  // a che displacement scrivere
+void radix_sort(int **glob_array, int *tmp_array, int n, int num_process, int rank) {
+    int dim;
+    int other;
+    int *array;
+    if (rank == 0) {
+        array = (int *)calloc(n, sizeof(int));
+        if (array == NULL)
+            perror("Memory Allocation - tmp_array");
+        dim = n / num_process + n % num_process;
+        other = n / num_process;
     } else {
         dim = n / num_process;
-        displacement = rank * dim + rem;
     }
 
-    int *rec_buf = (int *)malloc(sizeof(int) * dim);
-    int *sendcounts = NULL;
-    int *displs = NULL;
-    if (rank == 0) {
-        sendcounts = malloc(sizeof(int) * num_process);
-        displs = malloc(sizeof(int) * num_process);
-    }
-    MPI_Gather(&dim, 1, MPI_INT, sendcounts, 1, MPI_INT, 0, MPI_COMM_WORLD);       // tutti mandano allo 0 il numero degli elementi da loro ordinati
-    MPI_Gather(&displacement, 1, MPI_INT, displs, 1, MPI_INT, 0, MPI_COMM_WORLD);  // tutti mandano allo 0 il proprio displacment
-
-    MPI_Scatterv(array, sendcounts, displs, MPI_INT, rec_buf, dim, MPI_INT, 0, MPI_COMM_WORLD);  // scatters a buffer in parts to all processes in a comunicator
-    // ora ogni processo avrà il suo insieme di elementi da ordinare
-    if (rank == 0) {
-        free(sendcounts);
-        free(displs);
-    }
     // ogi processo calcolerà il massimo tra i suoi elementi
     int local_max, local_min;
-    getMaxandMin(rec_buf, dim, &local_min, &local_max);
+    getMaxandMin(tmp_array, dim, &local_min, &local_max);
 
     int global_max, global_min;
     // ora bisogna calcolare un massimo globale tra tutti i processi
@@ -319,7 +308,6 @@ void radix_sort(int *array, int n, int num_process, int rank) {
         tmp_pos /= 10;
         max_pos++;
     }
-
     int *frequencies[max_pos];
     if (rank == 0) {
         for (int i = 0; i < max_pos; i++) {
@@ -329,8 +317,15 @@ void radix_sort(int *array, int n, int num_process, int rank) {
 
     int decimal_digit = 0;
     for (int digit = 1; (global_max - global_min) / digit > 0; digit *= 10) {
-        countingSortAlgo1(rec_buf, digit, rank, dim, global_min, frequencies[decimal_digit]);
+        countingSortAlgo1(tmp_array, digit, rank, dim, global_min, frequencies[decimal_digit]);
         decimal_digit++;
+    }
+    if (rank != 0)
+        MPI_Send(tmp_array, dim, MPI_INT, 0, 0, MPI_COMM_WORLD);
+    if (rank == 0) {
+        memcpy(array, tmp_array, sizeof(int) * dim);
+        for (int i = 1; i < num_process; i++)
+            MPI_Recv(array + dim + (i - 1) * other, other, MPI_INT, i, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
     }
 
     if (rank == 0) {
@@ -345,8 +340,8 @@ void radix_sort(int *array, int n, int num_process, int rank) {
             memcpy(array, temp_array, sizeof(int) * n);
         }
         free(temp_array);
+        *glob_array = array;
     }
-    free(rec_buf);
 }
 
 void myRadixsort(int *array, int length, int num_process, int rank) {
@@ -372,8 +367,12 @@ void myRadixsort(int *array, int length, int num_process, int rank) {
         MPI_Bcast(&max_pos, 1, MPI_INT, 0, MPI_COMM_WORLD);
         MPI_Bcast(&size_neg, 1, MPI_INT, 0, MPI_COMM_WORLD);
         MPI_Bcast(&size_pos, 1, MPI_INT, 0, MPI_COMM_WORLD);
-        MPI_Bcast(array_neg, size_neg, MPI_INT, 0, MPI_COMM_WORLD);
-        MPI_Bcast(array_pos, size_pos, MPI_INT, 0, MPI_COMM_WORLD);
+        if (old_rank == 1) {
+            MPI_Recv(array_pos, size_pos, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        }
+        if (old_rank == 0) {
+            MPI_Send(array_pos, size_pos, MPI_INT, 1, 0, MPI_COMM_WORLD);
+        }
     }
 
     if (old_num_process <= 1) {
@@ -388,6 +387,7 @@ void myRadixsort(int *array, int length, int num_process, int rank) {
 
         if ((old_rank % 2) == 0) {
             // rank 0 master negativi sicur
+            MPI_Bcast(array_neg, size_neg, MPI_INT, 0, pari);
             serviceRadixsort(array_neg, size_neg, max_neg, rank, num_process, pari);
             if (old_rank == 0) {
                 memcpy(array, array_neg, size_neg * sizeof(int));
@@ -395,6 +395,8 @@ void myRadixsort(int *array, int length, int num_process, int rank) {
             }
         } else {
             // rank 1 master poisitivi sicuro
+
+            MPI_Bcast(array_pos, size_pos, MPI_INT, 0, pari);
             serviceRadixsort(array_pos, size_pos, max_pos, rank, num_process, pari);
             if (old_rank == 1) {
                 MPI_Send(array_pos, size_pos, MPI_INT, 0, 0, MPI_COMM_WORLD);

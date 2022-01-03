@@ -69,18 +69,18 @@ target_compile_features(WriteVectOnFile PRIVATE c_std_11)
 
 
 # ---------------------------------------- TEST -----------------------------------------
-add_executable(my_test test/testRadixSort.c src/${INCLUDE_LIBRARY_C} include/${INCLUDE_LIBRARY_H})
-target_include_directories(my_test PRIVATE include)
-target_link_libraries(my_test PUBLIC MPI::MPI_C)
-set (my_test mpirun -np 2 "./${name}")
+#add_executable(my_test test/testRadixSort.c src/${INCLUDE_LIBRARY_C} include/${INCLUDE_LIBRARY_H})
+#target_include_directories(my_test PRIVATE include)
+#target_link_libraries(my_test PUBLIC MPI::MPI_C)
+#set (my_test mpirun -np 2 "./${name}")
 
-add_executable(my_test2 test/testReadWriteFile.c src/${INCLUDE_LIBRARY_C} include/${INCLUDE_LIBRARY_H})
-target_include_directories(my_test2 PRIVATE include)
-target_link_libraries(my_test2 PUBLIC MPI::MPI_C)
-set (my_test2 mpirun -np 2 "./${name}")
+#add_executable(my_test2 test/testReadWriteFile.c src/${INCLUDE_LIBRARY_C} include/${INCLUDE_LIBRARY_H})
+#target_include_directories(my_test2 PRIVATE include)
+#target_link_libraries(my_test2 PUBLIC MPI::MPI_C)
+#set (my_test2 mpirun -np 2 "./${name}")
 
-add_test (NAME my_test COMMAND my_test )
-add_test (NAME my_test2 COMMAND my_test2  )
+#add_test (NAME my_test COMMAND my_test )
+#add_test (NAME my_test2 COMMAND my_test2  )
 
 
 
