@@ -57,7 +57,6 @@ int main(int argc, char **argv) {
     init_mode = atoi(argv[2]);
     algorithm = atoi(argv[3]);
     max_digit = atoi(argv[4]);
-    int length_tmp = length;
     read_start_time = MPI_Wtime();
     if (algorithm == 0)
         init_structures(&array, length, init_mode, rank, num_process, "VectGruppo12");
@@ -83,7 +82,7 @@ int main(int argc, char **argv) {
         radix_sort(&array, tmp, length, num_process, rank);
         algo_end_time = MPI_Wtime();
         if (rank == 0) {
-            for (int i = 1; i < length_tmp; i++)
+            for (int i = 1; i < length; i++)
                 if (array[i - 1] > array[i]) {
                     printf("Errore, array non ordinato!!!;!");
                     break;
