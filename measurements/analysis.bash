@@ -38,11 +38,10 @@ TIMEFORMAT='%3U;%3E;%3S;%P'
 #number of measurements to be made for each combination 
 NUM_MEASURES=50
 
-#dimension of item in program vector
-
+#number of elements to be sorted
 VECT_DIMENSIONS=(200)
 
-#number of threads used in our analysis to evaluate the performance variations
+#number of processes used in our analysis to evaluate the performance variations
 #with the different types of parallelized and non-parallelized algorithms.
 #N.B. 0 is used for considerate serial execution 
 NUM_PROCESS=(0 1 2 4)
@@ -50,27 +49,25 @@ NUM_PROCESS=(0 1 2 4)
 #different options for compiler optimizations in back-end
 COMP_OPT=(2)
 
-#reference to programs 0 for radix sort based on counting sort, 1 for radix based on brutal algorithms
+#reference to different algorithm implementing parallelized Radix Sort
 ALGORITHMS=(0 1)
 
-# QUA DEVESCRIVERE CAMILLAAAAAreference to programs 0 for radix sort based on counting sort, 1 for radix based on brutal algorithms
+#different modes of initialization of the array. 0 stands for sequential initialization and 1 stands for parallel one. Only algorithm 0 works with both, 
+#algorithm 0 works only with init_mode 1
 INIT_MODE=(0 1)
 
-#MAX_DIGIT saved all length of max digit that we want to try in measurements in loops operations
+#the maximum number contained in the elements to be sorted
 MAX_DIGIT=(99999999)
 
 #the path in which this script is placed
 START_PATH=$(  cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P)
 
-#bash directive to detecting the and of a script and reacting to it in a pre-calculated manner
+#bash directive to detecting the end of a script and reacting to it in a pre-calculated manner
 trap "exit" INT
 
-#function used to execute the program with different input value passed
+#function used to execute the program with different input values passed
 execute(){
 
-
-          # $1     2     3          4       5      6            7       8    
-#           $dim $c_opt $init_mode $num_p $dest  $path prog $name_prog $algo  $max digit
     for ((i=0; i<$NUM_MEASURES; i++)); do
         if [[ $4 -eq 0 ]]; then
             program=$7_seq_O$2
@@ -89,37 +86,11 @@ execute(){
     done
 }
 
-#function that execute code so many times which are the different number of max digit, 
-#it establisced the path for every file changing throw parameters of size, optimization, 
-#schedule and chunck-size passed
-gen_execute(){
-    for max_digit in ${MAX_DIGIT[@]}; do
-           # $1     2   3           4       5               6           7           8
-#           $dim $c_opt $init_mode $num_p $NAME_FILE_DEST $path_prog $name_prog $algo 
-        DEST=$START_PATH/measures/ALGORITHM-$8/INIT_MODE-$3/SIZE-$1/MAX_DIGIT-$max_digit/OPTIMIZATION-O$2/$5
-        
-        #creation of necessary folders
-        mkdir -p $(dirname $DEST) 2> /dev/null
-
-        #for each configuration of number of threads, dimensions of rows and columns and for each compiler's optimization
-        #the program will execute num_measures measurements and the results will be write on the correct destination file.
-        
-        #print the name of the file now being processed 
-        echo -e "\n$DEST"
-        #print on the file the parameters obtained from measurement, to be analyzed 
-        echo "algo,init_mode,size,processes,init,funct,user,elapsed,sys,pCPU" >$DEST
-
-        execute $1 $2 $3 $4 $DEST $6 $7 $8 $max_digit
-    done
-
-}
-
-
 
 #function to create the file in format csv where the different values obtained 
 #during the analysis have to be saved.
 #The purpose is to obtain values of different times for each dimesion of vector, 
-#for each number of threads and for each option of compiler's optimization.
+#for each number of processes and for each option of compiler's optimization.
 #used to set how many execution we have to do changing parameters descibed up
 generate(){
 
@@ -150,9 +121,6 @@ generate(){
                             
                             #creation of necessary folders
                             mkdir -p $(dirname $DEST) 2> /dev/null
-
-                            #for each configuration of number of threads, dimensions of rows and columns and for each compiler's optimization
-                            #the program will execute num_measures measurements and the results will be write on the correct destination file.
                             
                             #print the name of the file now being processed 
                             echo -e "\n$DEST"
@@ -167,9 +135,6 @@ generate(){
         done
     done
 }
-
-
-
 
 
 #if the script has been called with first_command command, is called
