@@ -117,7 +117,6 @@ void init_structuresAlgo1(int **array, int length, int rank, int num_process, ch
     MPI_File_set_view(fh_a, displacement, MPI_INT, dt_row_a, "native", MPI_INFO_NULL);
     if (MPI_File_read(fh_a, *array, 1, dt_row_a, MPI_STATUS_IGNORE) != MPI_SUCCESS)
         perror("error during lecture from file with MPI");
-    // MPI_Gather(tmp_array, dim, MPI_INT, *array, dim, MPI_INT, 0, MPI_COMM_WORLD);
 }
 
 /**

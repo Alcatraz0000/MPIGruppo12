@@ -38,6 +38,12 @@
 
 #include "RadixSort.h"
 
+/**
+ * @brief This main function call parallel execution of radix sort algorithms with the their personalized "init mode" function for lecture from file the array to order. 
+ * It takes also times for every call to test values as speedup (use MPI)
+ * @param argc      classic value not used.
+ * @param argv       classic value not used.
+ */
 int main(int argc, char **argv) {
     int rank, num_process;
     MPI_Init(&argc, &argv);

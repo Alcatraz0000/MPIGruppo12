@@ -28,7 +28,7 @@
  */
 
 /**
-        @file main.c
+        @file sequential.c
 
 */
 #include <stdio.h>
@@ -38,6 +38,12 @@
 
 #include "RadixSortSeq.h"
 
+/**
+ * @brief This main function call sequential execution of radix sort algorithms with a sequential "init mode" function for lecture from file the array to order. 
+ * It takes also times for every call to test values as speedup (use MPI)
+ * @param argc      classic value not used.
+ * @param argv       classic value not used.
+ */
 int main(int argc, char **argv) {
     int *array;
     double algo_end_time = 0.0;
@@ -53,7 +59,7 @@ int main(int argc, char **argv) {
     max_digit = atoi(argv[3]);
 
     STARTTIME(1);
-    init_structures(&array, length, "VectGruppo12");  // due tipi di input da file
+    init_structures(&array, length, "VectGruppo12");
     ENDTIME(1, read_end_time);
 
     if (algorithm == 0) {

@@ -44,7 +44,7 @@
  * @param length        dimension of array, so the number of elements contained in the array.
  * @param FILE_A        the name of the file to read on.
  */
-void init_structures(int **array, int length, char *FILE_A) {  // implementazione I/O doppio da file
+void init_structures(int **array, int length, char *FILE_A) {  
     int *tmp_array = (int *)malloc(length * sizeof(int));
     if (tmp_array == NULL)
         perror("Memory Allocation - tmp_array");
