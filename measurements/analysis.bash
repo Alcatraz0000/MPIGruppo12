@@ -36,7 +36,7 @@ TIMEFORMAT='%3U;%3E;%3S;%P'
 #definitions of some variables used in this script:
 
 #number of measurements to be made for each combination 
-NUM_MEASURES=20
+NUM_MEASURES=50
 
 #dimension of item in program vector
 

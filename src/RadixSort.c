@@ -329,13 +329,6 @@ void radix_sort(int **glob_array, int *tmp_array, int n, int num_process, int ra
     }
 
     if (rank == 0) {
-        /*for (int i = 0; i < max_pos; i++) {
-            for (int j = 0; j < 10; j++) {
-                printf(" %d ", frequencies[i][j]);
-            }
-            printf("\n");
-        }*/
-
         int *temp_array = (int *)malloc(sizeof(int) * n);
         int val = 1;
         for (int j = 0; j < max_pos; j++) {
