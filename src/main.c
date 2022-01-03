@@ -44,6 +44,7 @@ int main(int argc, char **argv) {
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &num_process);
     int *array;
+    int *tmp;
     double algo_start_time, algo_end_time, read_start_time, read_end_time;
     int length, algorithm, max_digit, init_mode;
 
@@ -56,9 +57,13 @@ int main(int argc, char **argv) {
     init_mode = atoi(argv[2]);
     algorithm = atoi(argv[3]);
     max_digit = atoi(argv[4]);
-
+    int length_tmp = length;
     read_start_time = MPI_Wtime();
-    int x = init_structures(&array, length, init_mode, rank, num_process, "VectGruppo12");
+    if (init_mode == 0)
+        init_structuresAlgo0(&array, length, rank, num_process, "VectGruppo12");
+    else {
+        init_structuresAlgo1(&tmp, length, rank, num_process, "VectGruppo12");
+    }
     read_end_time = MPI_Wtime();
 
     if (algorithm == 0) {
@@ -75,10 +80,10 @@ int main(int argc, char **argv) {
 
     } else {
         algo_start_time = MPI_Wtime();
-        radix_sort(array, length, num_process, rank);
+        radix_sort(&array, tmp, length, num_process, rank);
         algo_end_time = MPI_Wtime();
         if (rank == 0) {
-            for (int i = 1; i < length; i++)
+            for (int i = 1; i < length_tmp; i++)
                 if (array[i - 1] > array[i]) {
                     printf("Errore, array non ordinato!!!;!");
                     break;
