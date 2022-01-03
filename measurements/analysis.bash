@@ -36,11 +36,11 @@ TIMEFORMAT='%3U;%3E;%3S;%P'
 #definitions of some variables used in this script:
 
 #number of measurements to be made for each combination 
-NUM_MEASURES=50
+NUM_MEASURES=2
 
 #dimension of item in program vector
 
-VECT_DIMENSIONS=(20)
+VECT_DIMENSIONS=(2)
 
 #number of threads used in our analysis to evaluate the performance variations
 #with the different types of parallelized and non-parallelized algorithms.
@@ -51,10 +51,10 @@ NUM_PROCESS=(0 1 2 4)
 COMP_OPT=(2)
 
 #reference to programs 0 for radix sort based on counting sort, 1 for radix based on brutal algorithms
-ALGORITHMS=(1)
+ALGORITHMS=(0 1)
 
 # QUA DEVESCRIVERE CAMILLAAAAAreference to programs 0 for radix sort based on counting sort, 1 for radix based on brutal algorithms
-INIT_MODE=(1)
+INIT_MODE=(0 1)
 
 #MAX_DIGIT saved all length of max digit that we want to try in measurements in loops operations
 MAX_DIGIT=(99999999)
@@ -130,10 +130,14 @@ generate(){
         for dim in ${VECT_DIMENSIONS[@]}; do
             #create vector 
             $1/WriteVectOnFile $dim $max_digit
-
             for algo in ${ALGORITHMS[@]}; do
                 for c_opt in ${COMP_OPT[@]}; do
                     for init_mode in ${INIT_MODE[@]}; do
+                        if [[ $algo -eq 1 ]]; then
+                            if [[ $init_mode -eq 0 ]]; then
+                                continue
+                            fi
+                        fi
                         for num_p in ${NUM_PROCESS[@]}; do
                             #definition of destination file
                             if [[ $num_p -eq 0 ]]; then
