@@ -4,3 +4,6 @@ measurements/analysis.bash
 measurements/.DS_Store
 save.c
 .vscode/settings.json
+InitMatrixByMPI
+VectTestGruppo12
+VectGruppo12

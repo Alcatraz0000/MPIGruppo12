@@ -11,20 +11,20 @@
  *
  * Copyright (C) 2021 - All Rights Reserved
  *
- * This file is part of Contest-OMP: RadixSort.
+ * This file is part of Contest-MPI: RadixSort.
  *
- * Contest-OMP: RadixSort is free software: you can redistribute it and/or modify
+ * Contest-MPI: RadixSort is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * Contest-OMP: RadixSort is distributed in the hope that it will be useful,
+ * Contest-MPI: RadixSort is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with Contest-OMP: RadixSort.  If not, see <http://www.gnu.org/licenses/>.
+ * along with Contest-MPI: RadixSort.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #ifndef RADIXSORT_H_ /* Include guard */
@@ -41,11 +41,12 @@
 
 /* Token concatenation used */
 
-int init_structures(int **array, int length, int mode, int rank, int num_process, char *FILE_A);
+void init_structures(int **array, int length, int mode, int rank, int num_process, char *FILE_A);
+void init_structuresAlgo1(int **array, int length, int rank, int num_process, char *FILE_A);
 void write_on_File(int size, int max_digit, char *FILE_A);
 void getMaxandMin(int *arr, int n, int *min, int *max);
-void countingSortAlgo1(int* rec_buf,  int digit, int rank, int dim, int min, int* count);
-void radix_sort(int *array, int n, int num_process, int rank);
+void countingSortAlgo1(int *rec_buf, int digit, int rank, int dim, int min, int *count);
+void radix_sort(int **glob_array, int *tmp_array, int n, int num_process, int rank);
 void countingSortAlgo0(int array[], int base, int size, int raw_index, int *matrix);
 void myRadixsort(int *array, int length, int num_process, int rank);
 void serviceRadixsort(int array[], int size, int max, int rank, int num_process, MPI_Comm comm);

@@ -11,20 +11,20 @@
  *
  * Copyright (C) 2021 - All Rights Reserved
  *
- * This file is part of Contest-OMP: RadixSort.
+ * This file is part of Contest-MPI: RadixSort.
  *
- * Contest-OMP: RadixSort is free software: you can redistribute it and/or modify
+ * Contest-MPI: RadixSort is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * Contest-OMP: RadixSort is distributed in the hope that it will be useful,
+ * Contest-MPI: RadixSort is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with Contest-OMP: RadixSort.  If not, see <http://www.gnu.org/licenses/>.
+ * along with Contest-MPI: RadixSort.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 /**
@@ -44,6 +44,7 @@ int main(int argc, char **argv) {
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &num_process);
     int *array;
+    int *tmp;
     double algo_start_time, algo_end_time, read_start_time, read_end_time;
     int length, algorithm, max_digit, init_mode;
 
@@ -56,9 +57,12 @@ int main(int argc, char **argv) {
     init_mode = atoi(argv[2]);
     algorithm = atoi(argv[3]);
     max_digit = atoi(argv[4]);
-
     read_start_time = MPI_Wtime();
-    int x = init_structures(&array, length, init_mode, rank, num_process, "VectGruppo12");
+    if (algorithm == 0)
+        init_structures(&array, length, init_mode, rank, num_process, "VectGruppo12");
+    else {
+        init_structuresAlgo1(&tmp, length, rank, num_process, "VectGruppo12");
+    }
     read_end_time = MPI_Wtime();
 
     if (algorithm == 0) {
@@ -68,19 +72,19 @@ int main(int argc, char **argv) {
         if (rank == 0) {
             for (int i = 1; i < length; i++)
                 if (array[i - 1] > array[i]) {
-                    printf("Errore, array non ordinato!!!");
+                    printf("Errore, array non ordinato!!!;!");
                     break;
                 }
         }
 
     } else {
         algo_start_time = MPI_Wtime();
-        radix_sort(array, length, num_process, rank);
+        radix_sort(&array, tmp, length, num_process, rank);
         algo_end_time = MPI_Wtime();
         if (rank == 0) {
             for (int i = 1; i < length; i++)
                 if (array[i - 1] > array[i]) {
-                    printf("Errore, array non ordinato!!!");
+                    printf("Errore, array non ordinato!!!;!");
                     break;
                 }
         }

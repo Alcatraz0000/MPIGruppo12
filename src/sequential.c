@@ -11,20 +11,20 @@
  *
  * Copyright (C) 2021 - All Rights Reserved
  *
- * This file is part of Contest-OMP: RadixSort.
+ * This file is part of Contest-MPI: RadixSort.
  *
- * Contest-OMP: RadixSort is free software: you can redistribute it and/or modify
+ * Contest-MPI: RadixSort is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * Contest-OMP: RadixSort is distributed in the hope that it will be useful,
+ * Contest-MPI: RadixSort is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with Contest-OMP: RadixSort.  If not, see <http://www.gnu.org/licenses/>.
+ * along with Contest-MPI: RadixSort.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 /**
@@ -55,17 +55,22 @@ int main(int argc, char **argv) {
     STARTTIME(1);
     init_structures(&array, length, "VectGruppo12");  // due tipi di input da file
     ENDTIME(1, read_end_time);
-    STARTTIME(2);
-    if (algorithm == 0)
+
+    if (algorithm == 0) {
+        STARTTIME(2);
         myRadixsort(array, length);
-    else
+        ENDTIME(2, algo_end_time);
+    } else {
+        STARTTIME(2);
         radix_sort(array, length);
+        ENDTIME(2, algo_end_time);
+    }
     for (int i = 1; i < length; i++)
         if (array[i - 1] > array[i]) {
-            printf("Array non ordinato\n");
+            printf("Array non ordinat;o\n");
             break;
         }
-    ENDTIME(2, algo_end_time);
+
     printf("%d;0;%d;0;%.5f;%.5f\n", algorithm, length, read_end_time, algo_end_time);
 
     return 0;

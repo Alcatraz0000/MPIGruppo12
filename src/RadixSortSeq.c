@@ -11,20 +11,20 @@
  *
  * Copyright (C) 2021 - All Rights Reserved
  *
- * This file is part of Contest-OMP: RadixSort.
+ * This file is part of Contest-MPI: RadixSort.
  *
- * Contest-OMP: RadixSort is free software: you can redistribute it and/or modify
+ * Contest-MPI: RadixSort is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * Contest-OMP: RadixSort is distributed in the hope that it will be useful,
+ * Contest-MPI: RadixSort is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with Contest-OMP: RadixSort.  If not, see <http://www.gnu.org/licenses/>.
+ * along with Contest-MPI: RadixSort.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 /**
@@ -36,7 +36,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
+/**
+ * @brief This function initializes the array structure needed in the program.
+ * The inputs are read from file sequentially
+ * @param array         pointer to the portion of array to sort in the sorting algorithm.
+ * @param length        dimension of array, so the number of elements contained in the array.
+ * @param rank          rank of the process that is executing the function.
+ * @param num_process   the number of processes that are executing in parallel this function.
+ * @param FILE_A        the name of the file to read on.
+ */
 void init_structures(int **array, int length, char *FILE_A) {  // implementazione I/O doppio da file
     int *tmp_array = (int *)malloc(length * sizeof(int));
     if (tmp_array == NULL)
@@ -46,22 +54,6 @@ void init_structures(int **array, int length, char *FILE_A) {  // implementazion
         perror("error during lecture from file");
     fclose(file);
     *array = tmp_array;
-}
-
-void write_on_File(int length, int max_digit, char *FILE_A) {
-    int *tmp_array = (int *)malloc(length * sizeof(int));
-    if (tmp_array == NULL)
-        perror("Memory Allocation - tmp_array");
-    srand(time(NULL));
-    for (int i = 0; i < length; i++) {
-        if (i % 2)
-            tmp_array[i] = -(rand() % max_digit);
-        else
-            tmp_array[i] = (rand() % max_digit);
-    }
-    FILE *file = fopen(FILE_A, "w");
-    fwrite(tmp_array, sizeof(int), length, file);
-    fclose(file);
 }
 /**
  * @brief This function allows to find the maximum and the minimum in an array.
@@ -82,7 +74,8 @@ void getMaxandMin(int *arr, int n, int *min, int *max) {
 }
 
 /**
- * @brief The function that separates the array in subarray and starts the sorting process.
+ * @brief The function that starts the sorting process.
+ * First we search max and min in the array. We calculate the max number of digit (max_pos) and call countingSort on all of this.
  * @param array          array.
  * @param n              array size.
  * @param num_process    number of processes.
@@ -92,36 +85,45 @@ void radix_sort(int *array, int n) {
     int max;
     int min;
     getMaxandMin(array, n, &min, &max);
-
-    for (int digit = 1; (max - min) / digit > 0; digit *= 10) {
-        countingSortAlgo1(array, max, min, n, digit);
+    int max_pos = 0;
+    int tmp_pos = max - min;
+    while (tmp_pos > 0) {
+        tmp_pos /= 10;
+        max_pos++;
     }
+    int *frequencies[max_pos];
+
+    for (int i = 0; i < max_pos; i++) {
+        frequencies[i] = (int *)calloc(10, sizeof(int));
+    }
+    int decimal_digit = 0;
+    for (int digit = 1; (max - min) / digit > 0; digit *= 10) {
+        countingSortAlgo1(array, min, n, frequencies[decimal_digit], digit);
+        decimal_digit++;
+    }
+    int *temp_array = (int *)malloc(sizeof(int) * n);
+    int val = 1;
+    for (int j = 0; j < max_pos; j++) {
+        for (int i = n - 1; i >= 0; i--) {
+            temp_array[frequencies[j][((array[i] - min) / val) % 10] - 1] = array[i];
+            frequencies[j][((array[i] - min) / val) % 10]--;
+        }
+        val *= 10;
+        memcpy(array, temp_array, sizeof(int) * n);
+    }
+    free(temp_array);
 }
 
 /**
- * @brief This function allows to find the maximum in an array.
- * @param arr      array.
- * @param n        array size.
+ * @brief This function implements the counting sort for algorithm 1, calculates the total vector of frequencies.
+ * @param vet        pointer to array.
+ * @param min           the minimum value find in the array.
+ * @param n            dimension of the array.
+ * @param Count          pointer to the output array with the total frequencies of the ciphers.
+ * @param dig          the digit we are computing.
  */
-int getMax(int *arr, int n) {
-    int max = arr[0];
-    for (int i = 1; i < n; i++)
-        if (arr[i] > max)
-            max = arr[i];
-    return max;
-}
 
-int getMin(int *arr, int n) {
-    int min = arr[0];
-    for (int i = 1; i < n; i++)
-        if (arr[i] < min)
-            min = arr[i];
-    return min;
-}
-
-void countingSortAlgo1(int *vet, int max, int min, int n, int dig) {
-    int Count[10] = {0};
-
+void countingSortAlgo1(int *vet, int min, int n, int *Count, int dig) {
     for (int i = 0; i < n; i++) {
         Count[((vet[i] - min) / dig) % 10]++;
     }
@@ -129,17 +131,20 @@ void countingSortAlgo1(int *vet, int max, int min, int n, int dig) {
     for (int i = 1; i < 10; i++) {
         Count[i] += Count[i - 1];
     }
-
-    int *Output = (int *)malloc(sizeof(int) * n);
-    for (int i = n - 1; i >= 0; i--) {
-        Output[Count[((vet[i] - min) / dig) % 10] - 1] = vet[i];
-        Count[((vet[i] - min) / dig) % 10]--;
-    }
-
-    memcpy(vet, Output, sizeof(int) * n);
-    free(Output);
 }
 
+/**
+ * @brief This function calculates the number of positive and negative elements in the array and puts it in the corresponding arrays.
+ * It also calculates the maximum positive element and the minimum negative element.
+ * @param array         pointer to the array with total elements to sort.
+ * @param size          dimension of the array containing all elements.
+ * @param array_pos     pointer to array used to store the positive elements.
+ * @param array_neg     pointer to array used to store the negative elements.
+ * @param max_pos       pointer to the number of digits of the maximum positive element.
+ * @param max_neg       pointer to the number of digits of the minimum negative element.
+ * @param pos           pointer to the number of positive elements.
+ * @param neg           pointer to the number of negative elements.
+ */
 void getMaxDigitSeq(int array[], int size, int *array_pos, int *array_neg, int *max_pos, int *max_neg, int *pos, int *neg) {
     *max_pos = 0;
     *max_neg = 0;
@@ -174,6 +179,15 @@ void getMaxDigitSeq(int array[], int size, int *array_pos, int *array_neg, int *
     }
 }
 
+/**
+ * @brief This function implements the counting sort algorithm based on significant places, for the algorithm 0.
+ * @param array         pointer to the array with the elements to sort, that are only positive or negative.
+ * @param base          the base of the elements analized.
+ * @param size          dimension of the array to order.
+ * @param raw_index     the digit on which the counting has to be executed.
+ * @param vect          the pointer to the vector in which are stored the frequencies of each positional element.
+ */
+
 void countingSortAlgo0(int array[], int base, int size, int raw_index, int *matrix) {
     int place = 1;
 
@@ -201,6 +215,14 @@ void countingSortAlgo0(int array[], int base, int size, int raw_index, int *matr
     for (int j = 1; j < length; j++)
         matrix[j] += matrix[(j - 1)];
 }
+
+/**
+ * @brief This function implements the radix sort algorithm for algorithm 0 for a only positive or only negative array, based on counting sort algorithm,
+ * storing during the computation the frequencies of each element in a vector.
+ * @param array       pointer to the array with the elements to sort, that are only positive or negative.
+ * @param size        dimension of the subarray containing all positive or negative elements.
+ * @param max         maximum number of digits contained in the longer element of this subarray
+ */
 
 void serviceRadixsort(int array[], int size, int max) {
     // Get maximum element
@@ -233,6 +255,11 @@ void serviceRadixsort(int array[], int size, int max) {
     }
 }
 
+/**
+ * @brief This function instantiates two different arrays for store separately positive and negative values, in order to separate the operation of sorting.
+ * @param array      pointer to the array with total elements to sort.
+ * @param length       dimension of the array containing all elements.
+ */
 void myRadixsort(int *array, int length) {
     int *array_pos = (int *)malloc(length * sizeof(int));
     if (array_pos == NULL)

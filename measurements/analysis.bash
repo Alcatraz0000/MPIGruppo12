@@ -13,20 +13,20 @@
 #
 # Copyright (C) 2021 - All Rights Reserved
 #
-# This file is part of Contest-OMP: RadixSort.
+# This file is part of Contest-MPI: RadixSort.
 #
-# Contest-OMP: RadixSort is free software: you can redistribute it and/or modify
+# Contest-MPI: RadixSort is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# Contest-OMP: RadixSort is distributed in the hope that it will be useful,
+# Contest-MPI: RadixSort is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with Contest-OMP: RadixSort.  If not, see <http://www.gnu.org/licenses/>.
+# along with Contest-MPI: RadixSort.  If not, see <http://www.gnu.org/licenses/>.
 #
 
 #specific the formats of time
@@ -36,15 +36,16 @@ TIMEFORMAT='%3U;%3E;%3S;%P'
 #definitions of some variables used in this script:
 
 #number of measurements to be made for each combination 
-NUM_MEASURES=30
+NUM_MEASURES=50
 
 #dimension of item in program vector
-VECT_DIMENSIONS=(20000000)
+
+VECT_DIMENSIONS=(200)
 
 #number of threads used in our analysis to evaluate the performance variations
 #with the different types of parallelized and non-parallelized algorithms.
 #N.B. 0 is used for considerate serial execution 
-NUM_PROCESS=(0 1 2 4 8)
+NUM_PROCESS=(0 1 2 4)
 
 #different options for compiler optimizations in back-end
 COMP_OPT=(2)
@@ -53,7 +54,7 @@ COMP_OPT=(2)
 ALGORITHMS=(0 1)
 
 # QUA DEVESCRIVERE CAMILLAAAAAreference to programs 0 for radix sort based on counting sort, 1 for radix based on brutal algorithms
-INIT_MODE=(0)
+INIT_MODE=(0 1)
 
 #MAX_DIGIT saved all length of max digit that we want to try in measurements in loops operations
 MAX_DIGIT=(99999999)
@@ -77,7 +78,7 @@ execute(){
         else
             program=$7_O$2
             (export TMPDIR=/tmp
-                time mpirun --oversubscribe -np $4 $6/$program $1 $3 $8 $9) 2>&1 | sed -e ':a' -e 'N' -e '$!ba' -e 's/\n/;/g' -e 's/,/./g' -e 's/;/,/g' >> $5
+                time mpirun -np $4 $6/$program $1 $3 $8 $9) 2>&1 | sed -e ':a' -e 'N' -e '$!ba' -e 's/\n/;/g' -e 's/,/./g' -e 's/;/,/g' >> $5
         fi
         
 
@@ -129,10 +130,14 @@ generate(){
         for dim in ${VECT_DIMENSIONS[@]}; do
             #create vector 
             $1/WriteVectOnFile $dim $max_digit
-
             for algo in ${ALGORITHMS[@]}; do
                 for c_opt in ${COMP_OPT[@]}; do
                     for init_mode in ${INIT_MODE[@]}; do
+                        if [[ $algo -eq 1 ]]; then
+                            if [[ $init_mode -eq 0 ]]; then
+                                continue
+                            fi
+                        fi
                         for num_p in ${NUM_PROCESS[@]}; do
                             #definition of destination file
                             if [[ $num_p -eq 0 ]]; then
