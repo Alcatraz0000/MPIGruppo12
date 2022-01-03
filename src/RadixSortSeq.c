@@ -36,13 +36,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 /**
  * @brief This function initializes the array structure needed in the program.
- * The inputs are read from file sequentially
+ * The inputs are read from file sequentially.
  * @param array         pointer to the portion of array to sort in the sorting algorithm.
  * @param length        dimension of array, so the number of elements contained in the array.
- * @param rank          rank of the process that is executing the function.
- * @param num_process   the number of processes that are executing in parallel this function.
  * @param FILE_A        the name of the file to read on.
  */
 void init_structures(int **array, int length, char *FILE_A) {  // implementazione I/O doppio da file
@@ -78,8 +77,6 @@ void getMaxandMin(int *arr, int n, int *min, int *max) {
  * First we search max and min in the array. We calculate the max number of digit (max_pos) and call countingSort on all of this.
  * @param array          array.
  * @param n              array size.
- * @param num_process    number of processes.
- * @param rank           rank of the current process.
  */
 void radix_sort(int *array, int n) {
     int max;
@@ -225,7 +222,6 @@ void countingSortAlgo0(int array[], int base, int size, int raw_index, int *matr
  */
 
 void serviceRadixsort(int array[], int size, int max) {
-    // Get maximum element
     int base = 10;
     int *vect[max];
     for (int i = 0; i < max; i++) {

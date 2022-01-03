@@ -44,7 +44,7 @@ int main(int argc, char **argv) {
     double read_end_time = 0.0;
     int length, algorithm, max_digit;
     if (argc < 4) {
-        printf("ERROR! Usage: ./main length algorithm max_digit we nando");
+        printf("ERROR! Usage: ./main length algorithm max_digit");
         exit(1);
     }
 
@@ -65,12 +65,6 @@ int main(int argc, char **argv) {
         radix_sort(array, length);
         ENDTIME(2, algo_end_time);
     }
-    for (int i = 1; i < length; i++)
-        if (array[i - 1] > array[i]) {
-            printf("Array non ordinat;o\n");
-            break;
-        }
-
     printf("%d;0;%d;0;%.5f;%.5f\n", algorithm, length, read_end_time, algo_end_time);
 
     return 0;

@@ -35,6 +35,13 @@
 #include <stdlib.h>
 #include <time.h>
 
+
+/**
+ * @brief This function initializes the file with random integers, negative or positive, that are included in a range of numbers decided on the mag digit value.
+ * @param length        dimension of array, so the number of elements that the function has to write on file.
+ * @param max_digit     max number for the generation of the elements, that establish the range of the numbers.
+ * @param FILE_A        the name of the file to write on.
+ */
 void write_on_File(int length, int max_digit, char *FILE_A) {
     int *tmp_array = (int *)malloc(length * sizeof(int));
     if (tmp_array == NULL)

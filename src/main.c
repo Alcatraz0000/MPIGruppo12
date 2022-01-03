@@ -69,25 +69,10 @@ int main(int argc, char **argv) {
         algo_start_time = MPI_Wtime();
         myRadixsort(array, length, num_process, rank);
         algo_end_time = MPI_Wtime();
-        if (rank == 0) {
-            for (int i = 1; i < length; i++)
-                if (array[i - 1] > array[i]) {
-                    printf("Errore, array non ordinato!!!;!");
-                    break;
-                }
-        }
-
     } else {
         algo_start_time = MPI_Wtime();
         radix_sort(&array, tmp, length, num_process, rank);
         algo_end_time = MPI_Wtime();
-        if (rank == 0) {
-            for (int i = 1; i < length; i++)
-                if (array[i - 1] > array[i]) {
-                    printf("Errore, array non ordinato!!!;!");
-                    break;
-                }
-        }
     }
     double read_time = read_end_time - read_start_time;
     double algo_time = algo_end_time - algo_start_time;
