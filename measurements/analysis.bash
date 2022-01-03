@@ -40,7 +40,7 @@ NUM_MEASURES=50
 
 #dimension of item in program vector
 
-VECT_DIMENSIONS=(20000000)
+VECT_DIMENSIONS=(20)
 
 #number of threads used in our analysis to evaluate the performance variations
 #with the different types of parallelized and non-parallelized algorithms.
