@@ -185,7 +185,7 @@ void getMaxDigitSeq(int array[], int size, int *array_pos, int *array_neg, int *
  * @param vect          the pointer to the vector in which are stored the frequencies of each positional element.
  */
 
-void countingSortAlgo0(int array[], int base, int size, int raw_index, int *matrix) {
+void countingSortAlgo0(int array[], int base, int size, int raw_index, int *vect) {
     int place = 1;
 
     for (int i = 0; i < raw_index; i++)
@@ -202,15 +202,15 @@ void countingSortAlgo0(int array[], int base, int size, int raw_index, int *matr
             min = ((array[i] / place) % base);
     }
 
-    matrix[base] = min;
+    vect[base] = min;
 
     int length = max - min + 1;
     for (int j = 0; j < size; j++)
-        matrix[(((array[j] / place) % base) - min)]++;
+        vect[(((array[j] / place) % base) - min)]++;
 
     // Calculate cumulative count
     for (int j = 1; j < length; j++)
-        matrix[j] += matrix[(j - 1)];
+        vect[j] += vect[(j - 1)];
 }
 
 /**
