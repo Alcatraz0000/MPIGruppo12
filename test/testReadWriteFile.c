@@ -39,7 +39,9 @@
 #include <time.h>
 
 #include "RadixSort.h"
-
+/**
+ * @brief FILE_A The file where to save a temp vect to test the functions.
+ */
 #define FILE_A "TestVectGruppo12"
 
 /**
@@ -90,7 +92,6 @@ void test_init_structures_algorithm1(int *vect1, int length, int mode, int rank,
  * @param argv       classic value not used.
  */
 int main(int argc, char *argv[]) {
-    
     printf("\nPREPARING VARIABLES FOR LECTURES FROM FILE'S TESTS\n");
     int rank, num_process;
     MPI_Init(&argc, &argv);
@@ -119,7 +120,6 @@ int main(int argc, char *argv[]) {
     printf("...PASSED 2/3\n");
     test_init_structures_algorithm0(a3, length, 0, rank, num_process);
     printf("...PASSED 3/3\n");
-    
 
     printf("Starting tests for parallel lecture used in first algorithm\n");
     test_init_structures_algorithm0(a1, length, 1, rank, num_process);
@@ -128,7 +128,6 @@ int main(int argc, char *argv[]) {
     printf("...PASSED 2/3\n");
     test_init_structures_algorithm0(a3, length, 1, rank, num_process);
     printf("...PASSED 3/3\n");
-    
 
     printf("Starting tests for parallel lecture used in second algorithm\n");
     test_init_structures_algorithm1(a1, length, 1, rank, num_process);
@@ -137,7 +136,6 @@ int main(int argc, char *argv[]) {
     printf("...PASSED 2/3\n");
     test_init_structures_algorithm1(a3, length, 1, rank, num_process);
     printf("...PASSED 3/3\n");
-    
 
     printf("Tested ... Done");
     exit(EXIT_SUCCESS);
