@@ -38,6 +38,9 @@ from prettytable import PrettyTable
 from prettytable import MARKDOWN
 from prettytable import MSWORD_FRIENDLY
 import re
+from docx import Document
+from docx.shared import Cm, Pt
+import csv
 
 
 # set_up of what we want in addiction from every categories of measure
@@ -73,10 +76,12 @@ set_up = {
 
     }
 }
-
+word_document = Document()
 
 # @brief main function that call other to extract all data in different folders
 # @param root_algorithm_folders = the root were save all measurements extracted in different configuration
+
+
 def extraction(root_algorithm_folders):
     # obtain all directory that respect folders_condition for the measurement
 
@@ -181,6 +186,42 @@ def create_table_from_measure(subdir_where_measure, complete_path):
 
     table = _make_table(header['values'], cells['values'], name=table_filename)
     _plot_from_table(header["values"], cells["values"], name=plot_filename)
+    create_word_from_measure(complete_path)
+
+
+def create_word_from_measure(complete_path):
+    prev = os.getcwd()
+    # change my directory into path_were_extract
+    os.chdir(complete_path)
+    mydict = []
+    with open('summary_table.csv') as csv_file:
+        csv_reader = csv.reader(csv_file, delimiter='|')
+        for row in csv_reader:
+            mydict.append(row)
+    print("Generating word docs!")
+
+    sections = word_document.sections
+    margin = 1.27
+    for section in sections:
+        section.top_margin = Cm(margin)
+        section.bottom_margin = Cm(margin)
+        section.left_margin = Cm(margin)
+        section.right_margin = Cm(margin)
+    document_name = 'Documents'
+    word_document.add_heading(
+        complete_path[complete_path.find("ALGORITHM"):].replace("/", " "), 3)
+    word_document.add_picture('speedup-plot.jpg', width=Cm(19))
+    table = word_document.add_table(5, 0)  # we add rows iteratively
+    table.style = 'Colorful List'
+    for _ in range(0, 9):
+        table.add_column(Cm(5))
+    for index, stat_item in enumerate(mydict):
+        row = table.rows[index]
+        row.cells[0].text = str(stat_item[1])
+        for i in range(2, 10):
+            row.cells[i-1].text = str(stat_item[i]).replace(" ", "")[:10]
+    word_document.add_page_break()
+    os.chdir(prev)
 
 
 # @brief return all measures for all configurations obtained by all data captured
@@ -340,6 +381,8 @@ def _plot_from_table(header, rows, save=True, name="", show_plot=False):
 # @brief save a table in a file
 # @param table = reference to table
 # @param filename = reference to file
+
+
 def _save_table(table, filename):
     with open(filename, "w") as table_file:
         # table.set_style(MARKDOWN)
@@ -354,3 +397,5 @@ if __name__ == "__main__":
     root_for_extraction = os.path.join(
         os.path.dirname(os.path.realpath(__file__)), "measures/")
     extraction(root_for_extraction)
+    os.chdir(os.path.realpath(__file__)[:-10])
+    word_document.save("AllMeasurements" + '.docx')
