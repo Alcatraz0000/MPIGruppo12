@@ -36,28 +36,28 @@ TIMEFORMAT='%3U;%3E;%3S;%P'
 #definitions of some variables used in this script:
 
 #number of measurements to be made for each combination 
-NUM_MEASURES=50
+NUM_MEASURES=100
 
 #number of elements to be sorted
-VECT_DIMENSIONS=(200)
+VECT_DIMENSIONS=(5000000 20000000)
 
 #number of processes used in our analysis to evaluate the performance variations
 #with the different types of parallelized and non-parallelized algorithms.
 #N.B. 0 is used for considerate serial execution 
-NUM_PROCESS=(0 1 2 4)
+NUM_PROCESS=(0 1 2 4 8 16)
 
 #different options for compiler optimizations in back-end
-COMP_OPT=(2)
+COMP_OPT=(1 2 3)
 
 #reference to different algorithm implementing parallelized Radix Sort
 ALGORITHMS=(0 1)
 
 #different modes of initialization of the array. 0 stands for sequential initialization and 1 stands for parallel one. Only algorithm 0 works with both, 
-#algorithm 0 works only with init_mode 1
+#algorithm 1 works only with init_mode 1
 INIT_MODE=(0 1)
 
 #the maximum number contained in the elements to be sorted
-MAX_DIGIT=(99999999)
+MAX_DIGIT=(9999 99999999)
 
 #the path in which this script is placed
 START_PATH=$(  cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P)

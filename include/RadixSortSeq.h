@@ -27,19 +27,16 @@
  * along with Contest-MPI: RadixSort.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef RADIXSORTSEQ_H_ /* Include guard */
+#ifndef RADIXSORTSEQ_H_ 
 #define RADIXSORTSEQ_H_
+
+#include <time.h>
 
 /** macros to get execution time: both macros have to be in the same scope
  *   define a double variable to use in ENDTIME before STARTTIME:
  *   double x;
  *   the variable will hold the execution time in seconds.
  */
-
-#include <time.h>
-
-/* Token concatenation used */
-/* Token concatenation used */
 #define STARTTIME(id)                             \
     clock_t start_time_42_##id, end_time_42_##id; \
     start_time_42_##id = clock()

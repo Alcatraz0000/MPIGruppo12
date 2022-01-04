@@ -27,19 +27,12 @@
  * along with Contest-MPI: RadixSort.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef RADIXSORT_H_ /* Include guard */
+#ifndef RADIXSORT_H_ 
 #define RADIXSORT_H_
 
-/** macros to get execution time: both macros have to be in the same scope
- *   define a double variable to use in ENDTIME before STARTTIME:
- *   double x;
- *   the variable will hold the execution time in seconds.
- */
 
 #include <mpi.h>
 #include <time.h>
-
-/* Token concatenation used */
 
 void init_structures(int **array, int length, int mode, int rank, int num_process, char *FILE_A);
 void init_structuresAlgo1(int **array, int length, int rank, int num_process, char *FILE_A);

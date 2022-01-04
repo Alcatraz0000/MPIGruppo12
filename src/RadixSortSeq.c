@@ -28,7 +28,7 @@
  */
 
 /**
-        @file RadixSort.c
+        @file RadixSortSeq.c
 */
 
 #include "RadixSortSeq.h"
